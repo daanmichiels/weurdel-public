@@ -1,0 +1,6 @@
+*.tar.gz
+*.py
+*.scss
+*.css.map
+*.js.map
+.idea

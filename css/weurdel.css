@@ -1,0 +1,174 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+div#wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
+  min-height: 100%;
+}
+
+div#title {
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
+  font-size: 1.8em;
+  font-variant: small-caps;
+  margin: 0.2em;
+  flex-grow: 0;
+  height: 1.5rem;
+}
+
+#grid-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#grid {
+  display: grid;
+  gap: 2px;
+  max-width: 380px;
+  max-height: 456px;
+  grid-template-columns: auto auto auto auto auto;
+}
+#grid div.grid-cell {
+  font-size: 30px;
+  text-align: center;
+  border: 1px solid #999999;
+  text-transform: capitalize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+}
+#grid div.grid-cell.active {
+  border: 1px solid #444444;
+  background-color: rgb(248, 248, 248);
+}
+#grid div.grid-cell.white {
+  background-color: white;
+}
+#grid div.grid-cell.green {
+  background-color: rgb(83, 131, 83);
+  color: rgb(255, 255, 255);
+}
+#grid div.grid-cell.yellow {
+  background-color: rgb(173, 173, 85);
+  color: rgb(255, 255, 255);
+}
+#grid div.grid-cell.gray {
+  background-color: rgb(148, 148, 148);
+  color: rgb(255, 255, 255);
+}
+
+#keyboard {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 240px;
+  max-width: 650px;
+}
+#keyboard .keyboard-row {
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
+#keyboard .keyboard-row button.key {
+  height: 56px;
+  flex-grow: 2;
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
+  text-transform: capitalize;
+  margin: 2px;
+  font-size: 17.92px;
+  background-color: #d1d4d9;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.5s ease;
+  touch-action: manipulation;
+}
+#keyboard .keyboard-row button.key.wider {
+  flex-grow: 3;
+}
+#keyboard .keyboard-row button.key.green {
+  background-color: rgb(83, 131, 83);
+  color: rgb(255, 255, 255);
+}
+#keyboard .keyboard-row button.key.yellow {
+  background-color: rgb(173, 173, 85);
+  color: rgb(255, 255, 255);
+}
+#keyboard .keyboard-row button.key.gray {
+  background-color: rgb(148, 148, 148);
+  color: rgb(255, 255, 255);
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.flip_right_a {
+  animation: anim_fra 0.2s linear 1;
+}
+
+.flip_right_b {
+  animation: anim_frb 0.2s linear 1;
+}
+
+@keyframes anim_fra {
+  0% {
+    transform: perspective(400px) rotateY(0deg);
+  }
+  100% {
+    transform: perspective(400px) rotateY(90deg);
+  }
+}
+@keyframes anim_frb {
+  0% {
+    transform: perspective(400px) rotateY(-90deg);
+  }
+  100% {
+    transform: perspective(400px) rotateY(0deg);
+  }
+}
+.pulse {
+  animation: anim_pulse 0.1s linear 1;
+}
+
+@keyframes anim_pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.shake {
+  animation: anim_shake 0.1s linear 2;
+}
+
+@keyframes anim_shake {
+  0% {
+    transform: translateX(0);
+  }
+  30% {
+    transform: translateX(5px);
+  }
+  70% {
+    transform: translateX(-5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/*# sourceMappingURL=weurdel.css.map */
