@@ -12,11 +12,51 @@
 <body onload="go()">
 <div id="wrapper">
     <div id="title">Weurdel</div>
+    <button id="button-help" onclick="showExplanation(true)">?</button>
     <div id="grid-wrapper">
         <div id="grid">
         </div>
     </div>
     <div id="keyboard">
+    </div>
+    <div id="explanation-wrapper" onclick="showExplanation(false)">
+        <div id="explanation" onclick="event.stopPropagation()">
+            <button id="explanation-close" onclick="showExplanation(false)">
+                <svg viewBox="-1 -1 2 2">
+                    <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
+                </svg>
+            </button>
+            <p>Vind het vijfletterwoord.</p>
+            <div id="help-grid-wrapper">
+            <div id="help-grid">
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+                <div class="grid-cell"></div>
+            </div>
+            </div>
+            <div id="help-instruction">
+                <div id="help-instruction-0">
+                    Typ een bestaand woord.
+                </div>
+                <div id="help-instruction-1">
+                    Bevestig met <i>Enter</i>.
+                </div>
+                <div id="help-instruction-2">
+                    <div class="minisquare green" style="width: 18px; height: 18px; display: inline-block;"></div> <span>Groen: juiste letter, juiste plaats.</span><br>
+                    <div class="minisquare yellow" style="width: 18px; height: 18px; display: inline-block;"></div> <span>Geel: juiste letter, verkeerde plaats.</span><br>
+                    <div class="minisquare gray" style="width: 18px; height: 18px; display: inline-block;"></div> <span>Grijs: verkeerde letter.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="end-of-game-wrapper" onclick="showEndOfGame(false)">
+        <div id="end-of-game" onclick="event.stopPropagation()">
+            <div id="end-of-game-message">
+                Gewonnen!
+            </div>
+        </div>
     </div>
 </div>
 </body>

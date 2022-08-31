@@ -5,6 +5,7 @@ let currentGuess = '';
 let activeRow = 0;
 let activeCol = 0;
 let cells = [];
+let gameIsOver = false;
 function setUpGrid() {
     let grid = document.getElementById("grid");
     for (let r = 0; r < nrows; ++r) {
@@ -112,7 +113,108 @@ function handleKeyboardKey(e) {
     }
     handleKey(pressedKey);
 }
+function clearAndEraseColor(element) {
+    element.innerHTML = '';
+    element.classList.remove('green');
+    element.classList.remove('yellow');
+    element.classList.remove('gray');
+}
+let explanationAnimationDone = false;
+let explanationTimeout;
+function showExplanation(show) {
+    let help = document.getElementById("explanation-wrapper");
+    if (show) {
+        help.style.display = 'flex';
+    }
+    else {
+        help.style.display = 'none';
+    }
+    if (!explanationAnimationDone) {
+        let grid = document.getElementById("help-grid");
+        let cells = grid.children;
+        function step(n) {
+            let delay = 2000;
+            if (n == 0) {
+                clearAndEraseColor(cells[0]);
+                clearAndEraseColor(cells[1]);
+                clearAndEraseColor(cells[2]);
+                clearAndEraseColor(cells[3]);
+                clearAndEraseColor(cells[4]);
+                document.getElementById("help-instruction-0").style.visibility = 'visible';
+                document.getElementById("help-instruction-1").style.visibility = 'hidden';
+                document.getElementById("help-instruction-2").style.visibility = 'hidden';
+                delay = 600;
+            }
+            else if (n == 1) {
+                cells[0].innerHTML = 'h';
+                delay = 600;
+            }
+            else if (n == 2) {
+                cells[1].innerHTML = 'a';
+                delay = 500;
+            }
+            else if (n == 3) {
+                cells[2].innerHTML = 'l';
+                delay = 400;
+            }
+            else if (n == 4) {
+                cells[3].innerHTML = 'l';
+                delay = 400;
+            }
+            else if (n == 5) {
+                cells[4].innerHTML = 'o';
+                delay = 600;
+            }
+            else if (n == 6) {
+                document.getElementById("help-instruction-1").style.visibility = 'visible';
+                delay = 800;
+            }
+            else if (n == 7) {
+                flipAndColor(cells[0], 'gray', 0 * 0.12);
+                flipAndColor(cells[1], 'green', 1 * 0.12);
+                flipAndColor(cells[2], 'yellow', 2 * 0.12);
+                flipAndColor(cells[3], 'gray', 3 * 0.12);
+                flipAndColor(cells[4], 'yellow', 4 * 0.12);
+                delay = 1200;
+            }
+            else if (n == 8) {
+                document.getElementById("help-instruction-2").style.visibility = 'visible';
+                delay = 10000;
+                explanationAnimationDone = true;
+            }
+            if (n < 8) {
+                let nextStep = (n + 1) % 10;
+                explanationTimeout = window.setTimeout(() => step(nextStep), delay);
+            }
+        }
+    }
+    if (show) {
+        window.setTimeout(() => step(0), 0);
+    }
+    else {
+        if (explanationTimeout !== undefined) {
+            clearTimeout(explanationTimeout);
+            explanationTimeout = undefined;
+        }
+    }
+}
+function showEndOfGame(show) {
+    let eog = document.getElementById("end-of-game-wrapper");
+    if (show) {
+        eog.style.display = 'flex';
+    }
+    else {
+        eog.style.display = 'none';
+    }
+}
+function setEndOfGameMessage(msg) {
+    let elem = document.getElementById("end-of-game-message");
+    elem.innerHTML = msg;
+}
 function handleKey(name) {
+    if (gameIsOver) {
+        return;
+    }
     if (name.toLowerCase() === 'enter') {
         if (activeCol !== ncols) {
             return;
@@ -157,7 +259,9 @@ function handleKey(name) {
             }
         }
         if (currentGuess === target) {
-            // console.log('You win!');
+            setEndOfGameMessage("Gewonnen!");
+            gameIsOver = true;
+            setTimeout(() => showEndOfGame(true), 1000);
         }
         else if (activeRow < nrows - 1) {
             activeRow += 1;
@@ -166,7 +270,9 @@ function handleKey(name) {
             currentGuess = '';
         }
         else {
-            // console.log('You lose!');
+            setEndOfGameMessage("Het woord was " + target);
+            gameIsOver = true;
+            setTimeout(() => showEndOfGame(true), 1000);
         }
     }
     else if (name.toLowerCase() === 'del') {
@@ -237,6 +343,8 @@ function go() {
     setUpGrid();
     setUpKeyboard();
     setUpButtonHandlers();
+    showExplanation(false);
+    showEndOfGame(false);
     document.addEventListener("keydown", handleKeyboardKey);
 }
 //# sourceMappingURL=main.js.map
