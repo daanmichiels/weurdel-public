@@ -187,11 +187,11 @@ function showExplanation(show) {
                 explanationTimeout = window.setTimeout(() => step(nextStep), delay);
             }
         }
+        if (show) {
+            window.setTimeout(() => step(0), 0);
+        }
     }
-    if (show) {
-        window.setTimeout(() => step(0), 0);
-    }
-    else {
+    if (!show) {
         if (explanationTimeout !== undefined) {
             clearTimeout(explanationTimeout);
             explanationTimeout = undefined;
