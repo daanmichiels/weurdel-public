@@ -3799,6 +3799,7 @@ const acceptedWords = new Set([
     "quark",
     "quasi",
     "qubit",
+    "queer",
     "query",
     "queue",
     "quilt",
