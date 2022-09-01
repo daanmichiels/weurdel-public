@@ -2008,7 +2008,6 @@ const acceptedWords = new Set([
     "houwt",
     "hoven",
     "hozen",
-    "https",
     "huift",
     "huilt",
     "huist",
