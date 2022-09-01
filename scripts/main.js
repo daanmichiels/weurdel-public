@@ -6,6 +6,40 @@ let activeRow = 0;
 let activeCol = 0;
 let cells = [];
 let gameIsOver = false;
+let eventsYetToBeSent = [];
+let flushEventsTimeout;
+function flushEvents() {
+    flushEventsTimeout = undefined;
+    if (gtag) {
+        console.log('flushing events');
+        for (let i = 0; i < eventsYetToBeSent.length; ++i) {
+            let event = eventsYetToBeSent[i];
+            gtag('event', event['type'], event['payload']);
+        }
+    }
+    else {
+        console.log('waiting a bit longer');
+        flushEventsTimeout = setTimeout(flushEvents, 1000);
+    }
+}
+function logEvent(type, payload) {
+    if (gtag) {
+        gtag('event', type, payload);
+    }
+    else {
+        console.log('buffering event');
+        eventsYetToBeSent.push({
+            'type': type,
+            'payload': payload
+        });
+        if (flushEventsTimeout === undefined) {
+            flushEventsTimeout = setTimeout(flushEvents, 1000);
+        }
+    }
+}
+logEvent('start_of_game', {
+    'target': target
+});
 function setUpGrid() {
     let grid = document.getElementById("grid");
     for (let r = 0; r < nrows; ++r) {
@@ -259,7 +293,7 @@ function handleKey(name) {
             }
         }
         if (currentGuess === target) {
-            gtag('event', 'end_of_game', {
+            logEvent('end_of_game', {
                 'outcome': 'win',
                 'guesses': activeRow,
                 'target': target
@@ -275,7 +309,7 @@ function handleKey(name) {
             currentGuess = '';
         }
         else {
-            gtag('event', 'end_of_game', {
+            logEvent('end_of_game', {
                 'outcome': 'loss',
                 'guesses': activeRow,
                 'target': target
