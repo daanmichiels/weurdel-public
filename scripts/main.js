@@ -1,9 +1,6 @@
 let nrows = 6;
 let ncols = 5;
 let target = targetWords[Math.floor(targetWords.length * Math.random())];
-gtag('event', 'start_of_game', {
-    'target': target
-});
 let currentGuess = '';
 let activeRow = 0;
 let activeCol = 0;
