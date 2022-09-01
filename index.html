@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="description" content="Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
+    Gebruik de groene, gele en grijze hints om het woord te raden in zo weinig mogelijk beurten." />
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3RZC9F6RY"></script>
     <script>
         let host = window.location.hostname;
@@ -16,12 +18,22 @@
     <script src="scripts/accepted_words.js"></script>
     <script src="scripts/main.js"></script>
     <link rel="stylesheet" href="css/weurdel.css" />
-    <title>Weurdel</title>
+    <title>Weurdel: raad het Nederlandse woord</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 <body onload="go()">
 <div id="wrapper">
     <div id="title">Weurdel</div>
+    <div id="explanation-no-js">
+        Weurdel is de Nederlandstalige versie van het populaire woordspelletje Wordle.
+        Het doel is een vijfletterwoord te raden in hoogstens zes pogingen.
+        Na elke poging krijg je groene, gele of grijze hints:
+        <ul>
+            <li>een groene letter staat op de juiste plaats,</li>
+            <li>een gele letter komt voor in het woord, maar staat op de verkeerde plaats,</li>
+            <li>een grijze letter komt niet voor.</li>
+        </ul>
+    </div>
     <button id="button-help" onclick="showExplanation(true)">?</button>
     <div id="grid-wrapper">
         <div id="grid">

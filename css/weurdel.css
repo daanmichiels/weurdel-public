@@ -4,6 +4,10 @@ html, body {
   padding: 0;
 }
 
+#explanation-no-js {
+  display: none;
+}
+
 button {
   color: black;
   padding: 0;
