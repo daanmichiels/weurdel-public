@@ -1,6 +1,9 @@
 let nrows = 6;
 let ncols = 5;
 let target = targetWords[Math.floor(targetWords.length * Math.random())];
+gtag('event', 'start_of_game', {
+    'target': target
+});
 let currentGuess = '';
 let activeRow = 0;
 let activeCol = 0;
@@ -259,7 +262,9 @@ function handleKey(name) {
             }
         }
         if (currentGuess === target) {
-            gtag('event', 'EndOfGame', {
+            gtag('event', 'end_of_game', {
+                'outcome': 'win',
+                'guesses': activeRow,
                 'target': target
             });
             setEndOfGameMessage("Gewonnen!");
@@ -273,6 +278,11 @@ function handleKey(name) {
             currentGuess = '';
         }
         else {
+            gtag('event', 'end_of_game', {
+                'outcome': 'loss',
+                'guesses': activeRow,
+                'target': target
+            });
             setEndOfGameMessage("Het woord was " + target);
             gameIsOver = true;
             setTimeout(() => showEndOfGame(true), 1000);

@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3RZC9F6RY"></script>
     <script>
-        // let host = window.location.hostname;
-        // if (host.includes("weurdel.com")) {
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-V3RZC9F6RY');
-        // }
+        let host = window.location.hostname;
+        if (host.includes("weurdel.com")) {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-V3RZC9F6RY');
+        }
     </script>
     <script src="scripts/target_words.js"></script>
     <script src="scripts/accepted_words.js"></script>
