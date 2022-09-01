@@ -259,6 +259,9 @@ function handleKey(name) {
             }
         }
         if (currentGuess === target) {
+            gtag('event', 'EndOfGame', {
+                'target': target
+            });
             setEndOfGameMessage("Gewonnen!");
             gameIsOver = true;
             setTimeout(() => showEndOfGame(true), 1000);
