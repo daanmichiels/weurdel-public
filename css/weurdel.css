@@ -14,9 +14,7 @@ button {
 }
 
 #button-help {
-  border: 1px solid black;
-  border-bottom-left-radius: 15px;
-  border-top-right-radius: 15px;
+  border: none;
   position: absolute;
   right: 0.2rem;
   top: 0.2rem;
