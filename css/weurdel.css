@@ -93,12 +93,16 @@ button {
   height: 1.5em;
 }
 
+#end-of-game-message {
+  margin: 0.4em;
+}
+
 #end-of-game-restart {
   color: rgb(255, 255, 255);
   background-color: #1747e5;
   border: 1px solid black;
   margin: 0.4em;
-  padding: 0.4em;
+  padding: 0.8em;
   display: flex;
   align-items: center;
 }
