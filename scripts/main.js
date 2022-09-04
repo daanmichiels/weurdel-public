@@ -338,7 +338,7 @@ function startNewGame() {
     console.log("new game!");
     for (let i = 0; i < nrows; ++i) {
         for (let j = 0; j < ncols; ++j) {
-            flipAndErase(cells[i][j], 0.1 * (0.5 * i + j));
+            flipAndErase(cells[i][j], 0.1 * (0.58 * i + j));
         }
     }
     clearKeyColors();
