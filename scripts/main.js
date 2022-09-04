@@ -1,6 +1,5 @@
 let nrows = 6;
 let ncols = 5;
-let target = targetWords[Math.floor(targetWords.length * Math.random())];
 let currentGuess = '';
 let activeRow = 0;
 let activeCol = 0;
@@ -8,17 +7,23 @@ let cells = [];
 let gameIsOver = false;
 let eventsYetToBeSent = [];
 let flushEventsTimeout;
+let gameId;
+let target;
+function generateNewGame() {
+    gameId = generateGameId();
+    target = targetWords[Math.floor(targetWords.length * Math.random())];
+    console.log('gameId', gameId);
+    console.log('target', target);
+}
 function flushEvents() {
     flushEventsTimeout = undefined;
     if (gtag) {
-        console.log('flushing events');
         for (let i = 0; i < eventsYetToBeSent.length; ++i) {
             let event = eventsYetToBeSent[i];
             gtag('event', event['type'], event['payload']);
         }
     }
     else {
-        console.log('waiting a bit longer');
         flushEventsTimeout = setTimeout(flushEvents, 1000);
     }
 }
@@ -27,7 +32,6 @@ function logEvent(type, payload) {
         gtag('event', type, payload);
     }
     else {
-        console.log('buffering event');
         eventsYetToBeSent.push({
             'type': type,
             'payload': payload
@@ -37,9 +41,6 @@ function logEvent(type, payload) {
         }
     }
 }
-logEvent('start_of_game', {
-    'target': target
-});
 function setUpGrid() {
     let grid = document.getElementById("grid");
     for (let r = 0; r < nrows; ++r) {
@@ -74,6 +75,24 @@ function activateCell() {
 function setCell(contents) {
     let cell = cells[activeRow][activeCol];
     cell.innerHTML = contents;
+}
+function getListOfKeyboardKeys() {
+    return [
+        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+        ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'del']
+    ];
+}
+function clearKeyColors() {
+    let keys = getListOfKeyboardKeys();
+    for (let row = 0; row < keys.length; ++row) {
+        for (let col = 0; col < keys[row].length; ++col) {
+            let key = document.getElementById('key_' + keys[row][col]);
+            key.classList.remove('green');
+            key.classList.remove('yellow');
+            key.classList.remove('gray');
+        }
+    }
 }
 function colorKey(letter, color) {
     let key = document.getElementById("key_" + letter);
@@ -117,6 +136,27 @@ function flipAndColor(element, color, delay) {
         element.classList.remove('flip_right_a');
         element.classList.add(color);
         element.classList.add('flip_right_b');
+        element.removeEventListener('animationend', handleMiddle);
+        element.addEventListener('animationend', handleEnd);
+    }
+    function handleStart() {
+        element.classList.add('flip_right_a');
+        element.addEventListener('animationend', handleMiddle);
+    }
+    window.setTimeout(handleStart, 1000 * delay);
+}
+function flipAndErase(element, delay) {
+    function handleEnd() {
+        element.classList.remove('flip_right_b');
+        element.removeEventListener('animationend', handleEnd);
+    }
+    function handleMiddle() {
+        element.classList.remove('flip_right_a');
+        element.classList.remove('green');
+        element.classList.remove('yellow');
+        element.classList.remove('gray');
+        element.classList.add('flip_right_b');
+        element.innerHTML = '';
         element.removeEventListener('animationend', handleMiddle);
         element.addEventListener('animationend', handleEnd);
     }
@@ -236,10 +276,85 @@ function showEndOfGame(show) {
     let eog = document.getElementById("end-of-game-wrapper");
     if (show) {
         eog.style.display = 'flex';
+        document.getElementById("button-help").style.display = 'none';
+        document.getElementById("button-new-game").style.display = 'block';
     }
     else {
         eog.style.display = 'none';
     }
+}
+// https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+function storageAvailable(type) {
+    let storage;
+    try {
+        storage = window[type];
+        const x = '__storage_test__';
+        storage.setItem(x, x);
+        storage.removeItem(x);
+        return true;
+    }
+    catch (e) {
+        return e instanceof DOMException && (
+        // everything except Firefox
+        e.code === 22 ||
+            // Firefox
+            e.code === 1014 ||
+            // test name field too, because code might not be present
+            // everything except Firefox
+            e.name === 'QuotaExceededError' ||
+            // Firefox
+            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+            // acknowledge QuotaExceededError only if there's something already stored
+            (storage && storage.length !== 0);
+    }
+}
+function canUseLocalStorage() {
+    return storageAvailable('localStorage');
+}
+const usingLocalStorage = canUseLocalStorage();
+function getStatistics() {
+    if (usingLocalStorage) {
+        let stats = localStorage.getItem('weurdel/statistics');
+        if (stats) {
+            return stats.split('/').map(x => parseInt(x));
+        }
+    }
+    return [0, 0, 0, 0, 0, 0, 0];
+}
+function markEndOfGame(winOrLoss, numberOfGuesses) {
+    gameIsOver = true;
+    let stats = getStatistics();
+    if (winOrLoss == 'loss') {
+        stats[0] += 1;
+    }
+    else {
+        stats[numberOfGuesses] += 1;
+    }
+    if (usingLocalStorage) {
+        localStorage.setItem('weurdel/statistics', stats.join('/'));
+    }
+}
+function startNewGame() {
+    console.log("new game!");
+    for (let i = 0; i < nrows; ++i) {
+        for (let j = 0; j < ncols; ++j) {
+            flipAndErase(cells[i][j], 0.1 * (0.5 * i + j));
+        }
+    }
+    clearKeyColors();
+    generateNewGame();
+    activeRow = 0;
+    activeCol = 0;
+    currentGuess = '';
+    gameIsOver = false;
+    document.getElementById("button-help").style.display = 'block';
+    document.getElementById("button-new-game").style.display = 'none';
+}
+function generateGameId() {
+    let suffix = '';
+    suffix += Math.floor(256 * Math.random()).toString(16);
+    suffix += Math.floor(256 * Math.random()).toString(16);
+    return new Date().toISOString() + '_' + suffix;
 }
 function setEndOfGameMessage(msg) {
     let elem = document.getElementById("end-of-game-message");
@@ -254,7 +369,13 @@ function handleKey(name) {
             return;
         }
         console.assert(currentGuess.length === ncols);
-        if (!is_valid_word(currentGuess)) {
+        let is_valid_guess = is_valid_word(currentGuess);
+        logEvent('submit_guess', {
+            'game_id': gameId,
+            'guess': currentGuess,
+            'is_valid_guess': is_valid_guess,
+        });
+        if (!is_valid_guess) {
             for (let c = 0; c < ncols; ++c) {
                 cells[activeRow][c].classList.remove('shake');
                 shake(cells[activeRow][c]);
@@ -294,12 +415,13 @@ function handleKey(name) {
         }
         if (currentGuess === target) {
             logEvent('end_of_game', {
+                'game_id': gameId,
                 'outcome': 'win',
-                'guesses': activeRow,
+                'guesses': activeRow + 1,
                 'target': target
             });
             setEndOfGameMessage("Gewonnen!");
-            gameIsOver = true;
+            markEndOfGame('win', activeRow + 1);
             setTimeout(() => showEndOfGame(true), 1000);
         }
         else if (activeRow < nrows - 1) {
@@ -310,12 +432,13 @@ function handleKey(name) {
         }
         else {
             logEvent('end_of_game', {
+                'game_id': gameId,
                 'outcome': 'loss',
-                'guesses': activeRow,
+                'guesses': activeRow + 1,
                 'target': target
             });
             setEndOfGameMessage("Het woord was " + target);
-            gameIsOver = true;
+            markEndOfGame('loss', activeRow + 1);
             setTimeout(() => showEndOfGame(true), 1000);
         }
     }
@@ -347,11 +470,7 @@ function handleKey(name) {
 }
 function setUpKeyboard() {
     let board = document.getElementById("keyboard");
-    let keys = [
-        ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-        ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-        ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'del']
-    ];
+    let keys = getListOfKeyboardKeys();
     for (let r = 0; r < keys.length; r++) {
         let row = document.createElement("div");
         row.classList.add("keyboard-row");
@@ -389,6 +508,11 @@ function go() {
     setUpButtonHandlers();
     showExplanation(false);
     showEndOfGame(false);
+    generateNewGame();
+    logEvent('start_of_game', {
+        'game_id': gameId,
+        'target': target
+    });
     document.addEventListener("keydown", handleKeyboardKey);
 }
 //# sourceMappingURL=main.js.map

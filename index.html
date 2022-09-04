@@ -34,7 +34,12 @@
             <li>een grijze letter komt niet voor.</li>
         </ul>
     </div>
-    <button id="button-help" onclick="showExplanation(true)">?</button>
+    <button id="button-help" onclick="showExplanation(true)" style="display: block; width: 1.6em; height: 1.6em;">?</button>
+    <button id="button-new-game" onclick="startNewGame()" style="display: none; width: 1.6em; height: 1.6em;">
+        <svg viewBox="-180 -180 360 360">
+            <path d="M -80 -60 A 100 100 0 1 1 -100 0 M -40 -60 L -80 -60 L -80 -100" fill="none" stroke="black" stroke-width="15" stroke-linecap="round"/>
+        </svg>
+    </button>
     <div id="grid-wrapper">
         <div id="grid">
         </div>

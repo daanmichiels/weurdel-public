@@ -13,7 +13,7 @@ button {
   padding: 0;
 }
 
-#button-help {
+#button-help, #button-new-game {
   border: none;
   position: absolute;
   right: 0.2rem;
@@ -22,7 +22,7 @@ button {
   background-color: #ffffff;
   font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
 }
-#button-help:hover {
+#button-help:hover, #button-new-game:hover {
   background-color: #cccccc;
   cursor: pointer;
 }
