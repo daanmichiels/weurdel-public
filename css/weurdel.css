@@ -89,7 +89,10 @@ button {
 
 .freq-bar {
   height: 1.4em;
-  background-color: #1747e5;
+  background-color: rgb(83, 131, 83);
+}
+.freq-bar.freq-bar-loss {
+  background-color: rgb(189, 111, 111);
 }
 
 #end-of-game-freqs {

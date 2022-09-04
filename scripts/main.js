@@ -380,10 +380,10 @@ function setHistogramWidths() {
     for (let i = 0; i < freqs.length; ++i) {
         maxFreq = Math.max(freqs[i], maxFreq);
     }
-    document.getElementById("freq-bar-loss").style.width = `${8 * freqs[0] / maxFreq}em`;
+    document.getElementById("freq-bar-loss").style.width = `${6 * freqs[0] / maxFreq}em`;
     document.getElementById("freq-label-loss").innerHTML = freqs[0].toString();
     for (let i = 1; i < nrows + 1; ++i) {
-        document.getElementById("freq-bar-" + i).style.width = `${8 * freqs[i] / maxFreq}em`;
+        document.getElementById("freq-bar-" + i).style.width = `${6 * freqs[i] / maxFreq}em`;
         document.getElementById("freq-label-" + i).innerHTML = freqs[i].toString();
     }
 }
