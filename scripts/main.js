@@ -334,6 +334,8 @@ function markEndOfGame(winOrLoss, numberOfGuesses) {
         localStorage.setItem('weurdel/statistics', stats.join('/'));
     }
 }
+function handleRestartButton() {
+}
 function startNewGame() {
     console.log("new game!");
     for (let i = 0; i < nrows; ++i) {

@@ -76,12 +76,34 @@ button {
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.4);
   padding: 1em;
   background-color: white;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
 }
 #explanation p, #end-of-game p {
   margin-block-start: 0;
 }
 #explanation #help-instruction, #end-of-game #help-instruction {
   width: 15em;
+}
+
+#end-of-game-restart-icon {
+  display: inline;
+  width: 1.5em;
+  height: 1.5em;
+}
+
+#end-of-game-restart {
+  color: rgb(255, 255, 255);
+  background-color: #1747e5;
+  border: 1px solid black;
+  margin: 0.4em;
+  padding: 0.4em;
+  display: flex;
+  align-items: center;
+}
+#end-of-game-restart:hover {
+  background-color: #0c31ad;
 }
 
 div#wrapper {
