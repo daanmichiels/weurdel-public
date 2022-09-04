@@ -1343,7 +1343,6 @@ const targetWords = [
     "vraag",
     "vrede",
     "vrees",
-    "vrije",
     "vroeg",
     "vroor",
     "vrouw",
