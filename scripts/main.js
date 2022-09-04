@@ -331,6 +331,8 @@ function getStatistics() {
     };
 }
 function markEndOfGame(winOrLoss, numberOfGuesses) {
+    if (gameIsOver)
+        return;
     gameIsOver = true;
     let stats = getStatistics();
     if (winOrLoss == 'loss') {
@@ -345,8 +347,6 @@ function markEndOfGame(winOrLoss, numberOfGuesses) {
         localStorage.setItem('weurdel/frequencies', stats['freqs'].join('/'));
         localStorage.setItem('weurdel/streak', stats['streak'].toString());
     }
-}
-function handleRestartButton() {
 }
 function startNewGame() {
     console.log("new game!");
@@ -373,6 +373,19 @@ function generateGameId() {
 function setEndOfGameMessage(msg) {
     let elem = document.getElementById("end-of-game-message");
     elem.innerHTML = msg;
+}
+function setHistogramWidths() {
+    let freqs = getStatistics()['freqs'];
+    let maxFreq = 1;
+    for (let i = 0; i < freqs.length; ++i) {
+        maxFreq = Math.max(freqs[i], maxFreq);
+    }
+    document.getElementById("freq-bar-loss").style.width = `${8 * freqs[0] / maxFreq}em`;
+    document.getElementById("freq-label-loss").innerHTML = freqs[0].toString();
+    for (let i = 1; i < nrows + 1; ++i) {
+        document.getElementById("freq-bar-" + i).style.width = `${8 * freqs[i] / maxFreq}em`;
+        document.getElementById("freq-label-" + i).innerHTML = freqs[i].toString();
+    }
 }
 function handleKey(name) {
     if (gameIsOver) {
@@ -447,6 +460,7 @@ function handleKey(name) {
             else {
                 setEndOfGameMessage("Gewonnen!");
             }
+            setHistogramWidths();
             setTimeout(() => showEndOfGame(true), 1000);
         }
         else if (activeRow < nrows - 1) {
@@ -464,6 +478,7 @@ function handleKey(name) {
             });
             markEndOfGame('loss', activeRow + 1);
             setEndOfGameMessage("Het woord was " + target);
+            setHistogramWidths();
             setTimeout(() => showEndOfGame(true), 1000);
         }
     }
