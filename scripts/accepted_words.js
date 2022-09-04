@@ -3141,6 +3141,7 @@ const acceptedWords = new Set([
     "moven",
     "moves",
     "movet",
+    "mucus",
     "mudde",
     "muffe",
     "mufst",

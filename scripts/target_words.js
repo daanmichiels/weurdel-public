@@ -61,7 +61,6 @@ const targetWords = [
     "amber",
     "amorf",
     "amper",
-    "ampul",
     "ander",
     "angel",
     "angst",
