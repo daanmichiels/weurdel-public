@@ -313,25 +313,37 @@ function canUseLocalStorage() {
 }
 const usingLocalStorage = canUseLocalStorage();
 function getStatistics() {
+    let freqs = [0, 0, 0, 0, 0, 0, 0];
+    let streak = 0;
     if (usingLocalStorage) {
-        let stats = localStorage.getItem('weurdel/statistics');
-        if (stats) {
-            return stats.split('/').map(x => parseInt(x));
+        let freqsString = localStorage.getItem('weurdel/frequencies');
+        let streakString = localStorage.getItem('weurdel/streak');
+        if (freqsString) {
+            freqs = freqsString.split('/').map(x => parseInt(x));
+        }
+        if (streakString) {
+            streak = parseInt(streakString);
         }
     }
-    return [0, 0, 0, 0, 0, 0, 0];
+    return {
+        'freqs': freqs,
+        'streak': streak,
+    };
 }
 function markEndOfGame(winOrLoss, numberOfGuesses) {
     gameIsOver = true;
     let stats = getStatistics();
     if (winOrLoss == 'loss') {
-        stats[0] += 1;
+        stats['freqs'][0] += 1;
+        stats['streak'] = 0;
     }
     else {
-        stats[numberOfGuesses] += 1;
+        stats['freqs'][numberOfGuesses] += 1;
+        stats['streak'] += 1;
     }
     if (usingLocalStorage) {
-        localStorage.setItem('weurdel/statistics', stats.join('/'));
+        localStorage.setItem('weurdel/frequencies', stats['freqs'].join('/'));
+        localStorage.setItem('weurdel/streak', stats['streak'].toString());
     }
 }
 function handleRestartButton() {
@@ -422,8 +434,19 @@ function handleKey(name) {
                 'guesses': activeRow + 1,
                 'target': target
             });
-            setEndOfGameMessage("Gewonnen!");
             markEndOfGame('win', activeRow + 1);
+            let streak = getStatistics()['streak'];
+            if (streak >= 3) {
+                if (streak % 10 == 0) {
+                    setEndOfGameMessage(`Al ${streak} keer op rij<br>gewonnen! Hoera!`);
+                }
+                else {
+                    setEndOfGameMessage(`Al ${streak} keer op rij<br>gewonnen!`);
+                }
+            }
+            else {
+                setEndOfGameMessage("Gewonnen!");
+            }
             setTimeout(() => showEndOfGame(true), 1000);
         }
         else if (activeRow < nrows - 1) {
@@ -439,8 +462,8 @@ function handleKey(name) {
                 'guesses': activeRow + 1,
                 'target': target
             });
-            setEndOfGameMessage("Het woord was " + target);
             markEndOfGame('loss', activeRow + 1);
+            setEndOfGameMessage("Het woord was " + target);
             setTimeout(() => showEndOfGame(true), 1000);
         }
     }
