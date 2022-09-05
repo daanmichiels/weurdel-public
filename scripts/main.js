@@ -389,6 +389,12 @@ function setHistogramWidths() {
 }
 function handleKey(name) {
     if (gameIsOver) {
+        if (name == 'enter') {
+            if (document.getElementById("end-of-game-wrapper").style.display == 'flex') {
+                showEndOfGame(false);
+                startNewGame();
+            }
+        }
         return;
     }
     if (name.toLowerCase() === 'enter') {
