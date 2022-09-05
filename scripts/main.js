@@ -178,6 +178,9 @@ function handleKeyboardKey(e) {
     if (pressedKey === "Enter") {
         handleKey('enter');
     }
+    if (pressedKey === " ") {
+        handleKey('space');
+    }
     if (pressedKey.length > 1) {
         return;
     }
@@ -388,8 +391,9 @@ function setHistogramWidths() {
     }
 }
 function handleKey(name) {
+    name = name.toLowerCase();
     if (gameIsOver) {
-        if (name == 'enter') {
+        if (name == 'enter' || name == 'space') {
             if (document.getElementById("end-of-game-wrapper").style.display == 'flex') {
                 showEndOfGame(false);
                 startNewGame();
@@ -397,7 +401,7 @@ function handleKey(name) {
         }
         return;
     }
-    if (name.toLowerCase() === 'enter') {
+    if (name === 'enter' || name == 'space') {
         if (activeCol !== ncols) {
             return;
         }
@@ -488,7 +492,7 @@ function handleKey(name) {
             setTimeout(() => showEndOfGame(true), 1000);
         }
     }
-    else if (name.toLowerCase() === 'del') {
+    else if (name === 'del') {
         if (activeCol === 0) {
             return;
         }
