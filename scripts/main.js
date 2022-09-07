@@ -244,7 +244,7 @@ function showExplanation(show) {
             }
             else if (n == 6) {
                 document.getElementById("help-instruction-1").style.visibility = 'visible';
-                delay = 800;
+                delay = 200;
             }
             else if (n == 7) {
                 flipAndColor(cells[0], 'gray', 0 * 0.12);
@@ -275,12 +275,22 @@ function showExplanation(show) {
         }
     }
 }
+function showEogButton(show) {
+    if (show) {
+        document.getElementById("button-help").style.display = 'none';
+        document.getElementById("button-show-eog").style.display = 'block';
+    }
+    else {
+        document.getElementById("button-help").style.display = 'block';
+        document.getElementById("button-show-eog").style.display = 'none';
+    }
+}
 function showEndOfGame(show) {
     let eog = document.getElementById("end-of-game-wrapper");
     if (show) {
         eog.style.display = 'flex';
         document.getElementById("button-help").style.display = 'none';
-        document.getElementById("button-new-game").style.display = 'block';
+        document.getElementById("button-show-eog").style.display = 'block';
     }
     else {
         eog.style.display = 'none';
@@ -349,6 +359,7 @@ function markEndOfGame(winOrLoss, numberOfGuesses) {
     if (usingLocalStorage) {
         localStorage.setItem('weurdel/frequencies', stats['freqs'].join('/'));
         localStorage.setItem('weurdel/streak', stats['streak'].toString());
+        localStorage.removeItem('weurdel/currentGame');
     }
 }
 function startNewGame() {
@@ -364,8 +375,7 @@ function startNewGame() {
     activeCol = 0;
     currentGuess = '';
     gameIsOver = false;
-    document.getElementById("button-help").style.display = 'block';
-    document.getElementById("button-new-game").style.display = 'none';
+    showEogButton(false);
 }
 function generateGameId() {
     let suffix = '';
@@ -388,6 +398,39 @@ function setHistogramWidths() {
     for (let i = 1; i < nrows + 1; ++i) {
         document.getElementById("freq-bar-" + i).style.width = `${6 * freqs[i] / maxFreq}em`;
         document.getElementById("freq-label-" + i).innerHTML = freqs[i].toString();
+    }
+}
+function colorRow(row, guess) {
+    let reference = target.split('');
+    // greens
+    for (let c = 0; c < ncols; ++c) {
+        if (guess[c] === reference[c]) {
+            flipAndColor(cells[row][c], 'green', c * 0.12);
+            reference[c] = '_';
+            let letter = guess[c];
+            colorKey(letter, 'green');
+        }
+    }
+    // yellows & grays
+    for (let c = 0; c < ncols; ++c) {
+        if (guess[c] === target[c])
+            continue;
+        let found = false;
+        for (let d = 0; d < ncols; ++d) {
+            if (guess[c] === reference[d]) {
+                flipAndColor(cells[row][c], 'yellow', c * 0.12);
+                reference[d] = '_';
+                let letter = guess[c];
+                colorKey(letter, 'yellow');
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            flipAndColor(cells[row][c], 'gray', c * 0.12);
+            let letter = guess[c];
+            colorKey(letter, 'gray');
+        }
     }
 }
 function handleKey(name) {
@@ -419,37 +462,24 @@ function handleKey(name) {
             }
             return;
         }
-        let reference = target.split('');
-        // greens
-        for (let c = 0; c < ncols; ++c) {
-            if (currentGuess[c] === reference[c]) {
-                flipAndColor(cells[activeRow][c], 'green', c * 0.12);
-                reference[c] = '_';
-                let letter = currentGuess[c];
-                colorKey(letter, 'green');
-            }
-        }
-        // yellows & grays
-        for (let c = 0; c < ncols; ++c) {
-            if (currentGuess[c] === target[c])
-                continue;
-            let found = false;
-            for (let d = 0; d < ncols; ++d) {
-                if (currentGuess[c] === reference[d]) {
-                    flipAndColor(cells[activeRow][c], 'yellow', c * 0.12);
-                    reference[d] = '_';
-                    let letter = currentGuess[c];
-                    colorKey(letter, 'yellow');
-                    found = true;
-                    break;
+        // store new game state
+        if (usingLocalStorage) {
+            let words = [];
+            for (let i = 0; i <= activeRow; ++i) {
+                let word = '';
+                for (let j = 0; j < ncols; ++j) {
+                    word += cells[i][j].innerHTML;
                 }
+                words.push(word);
             }
-            if (!found) {
-                flipAndColor(cells[activeRow][c], 'gray', c * 0.12);
-                let letter = currentGuess[c];
-                colorKey(letter, 'gray');
-            }
+            let state = JSON.stringify({
+                'game_id': gameId,
+                'target': target,
+                'guesses': words
+            });
+            localStorage.setItem('weurdel/currentGame', state);
         }
+        colorRow(activeRow, currentGuess);
         if (currentGuess === target) {
             logEvent('end_of_game', {
                 'game_id': gameId,
@@ -471,7 +501,7 @@ function handleKey(name) {
                 setEndOfGameMessage("Gewonnen!");
             }
             setHistogramWidths();
-            setTimeout(() => showEndOfGame(true), 1000);
+            setTimeout(() => { showEndOfGame(true); showEogButton(true); }, 1000);
         }
         else if (activeRow < nrows - 1) {
             activeRow += 1;
@@ -489,7 +519,7 @@ function handleKey(name) {
             markEndOfGame('loss', activeRow + 1);
             setEndOfGameMessage("Het woord was " + target);
             setHistogramWidths();
-            setTimeout(() => showEndOfGame(true), 1000);
+            setTimeout(() => { showEndOfGame(true); showEogButton(true); }, 1000);
         }
     }
     else if (name === 'del') {
@@ -558,11 +588,34 @@ function go() {
     setUpButtonHandlers();
     showExplanation(false);
     showEndOfGame(false);
-    generateNewGame();
-    logEvent('start_of_game', {
-        'game_id': gameId,
-        'target': target
-    });
+    if (usingLocalStorage && localStorage.getItem('weurdel/currentGame')) {
+        let currentGame = JSON.parse(localStorage.getItem('weurdel/currentGame'));
+        console.log('loading game');
+        gameId = currentGame['game_id'];
+        target = currentGame['target'];
+        console.log(gameId);
+        console.log(target);
+        logEvent('load_game', {
+            'game_id': gameId
+        });
+        let words = currentGame['guesses'];
+        for (let i = 0; i < words.length; ++i) {
+            for (let j = 0; j < ncols; ++j) {
+                cells[i][j].innerHTML = words[i][j];
+            }
+            colorRow(i, words[i]);
+        }
+        activeRow = words.length;
+        activeCol = 0;
+        currentGuess = '';
+    }
+    else {
+        generateNewGame();
+        logEvent('start_of_game', {
+            'game_id': gameId,
+            'target': target
+        });
+    }
     document.addEventListener("keydown", handleKeyboardKey);
 }
 //# sourceMappingURL=main.js.map

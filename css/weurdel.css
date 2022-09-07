@@ -11,9 +11,10 @@ html, body {
 button {
   color: black;
   padding: 0;
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
 }
 
-#button-help, #button-new-game {
+#button-help, #button-show-eog {
   border: none;
   position: absolute;
   right: 0.2rem;
@@ -22,7 +23,7 @@ button {
   background-color: #ffffff;
   font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
 }
-#button-help:hover, #button-new-game:hover {
+#button-help:hover, #button-show-eog:hover {
   background-color: #cccccc;
   cursor: pointer;
 }
@@ -37,7 +38,7 @@ button {
   background-color: rgb(83, 131, 83);
 }
 .minisquare.yellow {
-  background-color: rgb(203, 180, 16);
+  background-color: rgb(206, 186, 42);
 }
 .minisquare.gray {
   background-color: rgb(148, 148, 148);
@@ -54,7 +55,7 @@ button {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-#explanation-close {
+#explanation-close, #end-of-game-close {
   position: absolute;
   top: 0;
   right: 0;
@@ -65,7 +66,7 @@ button {
   background-color: #ffffff;
   opacity: 0.3;
 }
-#explanation-close:hover {
+#explanation-close:hover, #end-of-game-close:hover {
   opacity: 0.7;
   cursor: pointer;
 }
@@ -87,9 +88,18 @@ button {
   width: 15em;
 }
 
+.freq-label {
+  justify-self: right;
+}
+
+.freq-name {
+  justify-self: left;
+}
+
 .freq-bar {
   height: 1.4em;
   background-color: rgb(83, 131, 83);
+  justify-self: left;
 }
 .freq-bar.freq-bar-loss {
   background-color: rgb(189, 111, 111);
@@ -123,6 +133,7 @@ button {
   padding: 0.8em;
   display: flex;
   align-items: center;
+  font-size: 1em;
 }
 #end-of-game-restart:hover {
   background-color: #0c31ad;
@@ -189,7 +200,7 @@ div#title {
   color: rgb(255, 255, 255);
 }
 #grid div.grid-cell.yellow, #help-grid div.grid-cell.yellow {
-  background-color: rgb(203, 180, 16);
+  background-color: rgb(206, 186, 42);
   color: rgb(255, 255, 255);
 }
 #grid div.grid-cell.gray, #help-grid div.grid-cell.gray {
@@ -233,7 +244,7 @@ div#title {
   color: rgb(255, 255, 255);
 }
 #keyboard .keyboard-row button.key.yellow {
-  background-color: rgb(203, 180, 16);
+  background-color: rgb(206, 186, 42);
   color: rgb(255, 255, 255);
 }
 #keyboard .keyboard-row button.key.gray {
