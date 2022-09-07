@@ -37,7 +37,7 @@ button {
   background-color: rgb(83, 131, 83);
 }
 .minisquare.yellow {
-  background-color: rgb(173, 173, 85);
+  background-color: rgb(203, 180, 16);
 }
 .minisquare.gray {
   background-color: rgb(148, 148, 148);
@@ -189,7 +189,7 @@ div#title {
   color: rgb(255, 255, 255);
 }
 #grid div.grid-cell.yellow, #help-grid div.grid-cell.yellow {
-  background-color: rgb(173, 173, 85);
+  background-color: rgb(203, 180, 16);
   color: rgb(255, 255, 255);
 }
 #grid div.grid-cell.gray, #help-grid div.grid-cell.gray {
@@ -233,7 +233,7 @@ div#title {
   color: rgb(255, 255, 255);
 }
 #keyboard .keyboard-row button.key.yellow {
-  background-color: rgb(173, 173, 85);
+  background-color: rgb(203, 180, 16);
   color: rgb(255, 255, 255);
 }
 #keyboard .keyboard-row button.key.gray {
