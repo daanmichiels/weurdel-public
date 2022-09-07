@@ -1336,6 +1336,7 @@ const targetWords = [
     "vogel",
     "volle",
     "volop",
+    "voogd",
     "voort",
     "voren",
     "vorig",
