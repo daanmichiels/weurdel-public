@@ -453,6 +453,7 @@ function handleKey(name) {
         logEvent('submit_guess', {
             'game_id': gameId,
             'guess': currentGuess,
+            'guesses': activeRow + 1,
             'is_valid_guess': is_valid_guess,
         });
         if (!is_valid_guess) {
