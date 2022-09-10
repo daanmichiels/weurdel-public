@@ -651,7 +651,7 @@ function handleKey(name) {
         grid.pushTransition(grid.activeRow, grid.activeCol, transition);
     }
     else {
-        if (grid.activeCol < 0) {
+        if (grid.activeCol == grid.nCols) {
             return;
         }
         let transition = new CellTransition();
@@ -740,4 +740,3 @@ function go() {
     document.addEventListener("keydown", handleKeyboardKey);
 }
 //# sourceURL=main.js
-//# sourceMappingURL=main.js.map

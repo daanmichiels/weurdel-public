@@ -1459,4 +1459,3 @@ const targetWords = [
     "zwoel",
     "zwoer"
 ];
-//# sourceMappingURL=target_words.js.map
