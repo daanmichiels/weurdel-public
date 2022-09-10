@@ -5030,6 +5030,7 @@ const acceptedWords = new Set([
     "veren",
     "verft",
     "verga",
+    "verge",
     "vergt",
     "verre",
     "versa",
