@@ -371,6 +371,10 @@ function startNewGame() {
     }
     clearKeyColors();
     generateNewGame();
+    logEvent('start_of_game', {
+        'game_id': gameId,
+        'target': target
+    });
     activeRow = 0;
     activeCol = 0;
     currentGuess = '';
