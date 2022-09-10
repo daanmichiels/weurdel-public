@@ -1,19 +1,252 @@
-let nrows = 6;
-let ncols = 5;
-let currentGuess = '';
-let activeRow = 0;
-let activeCol = 0;
-let cells = [];
-let gameIsOver = false;
+let game;
+let grid;
 let eventsYetToBeSent = [];
 let flushEventsTimeout;
-let gameId;
-let target;
-function generateNewGame() {
-    gameId = generateGameId();
-    target = targetWords[Math.floor(targetWords.length * Math.random())];
-    console.log('gameId', gameId);
-    console.log('target', target);
+var Color;
+(function (Color) {
+    Color[Color["White"] = 0] = "White";
+    Color[Color["Gray"] = 1] = "Gray";
+    Color[Color["Yellow"] = 2] = "Yellow";
+    Color[Color["Green"] = 3] = "Green";
+})(Color || (Color = {}));
+var GameState;
+(function (GameState) {
+    GameState[GameState["Playing"] = 0] = "Playing";
+    GameState[GameState["Win"] = 1] = "Win";
+    GameState[GameState["Loss"] = 2] = "Loss";
+})(GameState || (GameState = {}));
+function logStartOfGameEvent(game) {
+    logEvent('start_of_game', {
+        'game_id': game.gameId,
+        'target': game.target,
+    });
+}
+class Game {
+    constructor(nRows, nCols) {
+        if (typeof nRows === 'undefined')
+            nRows = 6;
+        if (typeof nCols === 'undefined')
+            nCols = 5;
+        this.nRows = nRows;
+        this.nCols = nCols;
+        this.gameId = Game.generateGameId();
+        this.target = targetWords[Math.floor(targetWords.length * Math.random())];
+        this.guesses = [];
+        this.state = GameState.Playing;
+        this.colors = [];
+        for (let row = 0; row < nRows; ++row) {
+            let rowColors = [];
+            for (let col = 0; col < nCols; ++col) {
+                rowColors.push(Color.White);
+            }
+            this.colors.push(rowColors);
+        }
+    }
+    updateColorsForLastGuess() {
+        let row = this.guesses.length - 1;
+        let guess = this.guesses[row];
+        let reference = this.target.split('');
+        // greens
+        for (let c = 0; c < this.nCols; ++c) {
+            if (guess[c] === reference[c]) {
+                this.colors[row][c] = Color.Green;
+                reference[c] = '_';
+            }
+        }
+        // yellows & grays
+        for (let c = 0; c < this.nCols; ++c) {
+            if (guess[c] === this.target[c])
+                continue;
+            let found = false;
+            for (let d = 0; d < this.nCols; ++d) {
+                if (guess[c] === reference[d]) {
+                    this.colors[row][c] = Color.Yellow;
+                    reference[d] = '_';
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                this.colors[row][c] = Color.Gray;
+            }
+        }
+    }
+    submitWord(word) {
+        if (this.state != GameState.Playing)
+            throw new Error("Cannot submit word to inactive game");
+        if (word.length != this.nCols)
+            throw new Error("Word has incorrect length");
+        this.guesses.push(word);
+        this.updateColorsForLastGuess();
+        if (word == this.target) {
+            this.state = GameState.Win;
+        }
+        else if (this.guesses.length == this.nRows) {
+            this.state = GameState.Loss;
+        }
+    }
+    static generateGameId() {
+        let suffix = '';
+        suffix += Math.floor(256 * Math.random()).toString(16);
+        suffix += Math.floor(256 * Math.random()).toString(16);
+        return new Date().toISOString() + '_' + suffix;
+    }
+    static loadOrNew() {
+        let currentGameJSON = getFromStorage('weurdel/currentGame');
+        if (currentGameJSON == null) {
+            let game = new Game();
+            logStartOfGameEvent(game);
+            return game;
+        }
+        else {
+            let currentGame = JSON.parse(currentGameJSON);
+            let game = new Game();
+            game.gameId = currentGame['game_id'];
+            game.target = currentGame['target'];
+            let guesses = currentGame['guesses'];
+            for (let i = 0; i < guesses.length; ++i) {
+                game.submitWord(guesses[i]);
+            }
+            logEvent('load_game', {
+                'game_id': game.gameId,
+                'target': game.target,
+            });
+            return game;
+        }
+    }
+}
+class CellState {
+    constructor(letter, color) {
+        if (typeof letter == 'undefined')
+            letter = '';
+        if (typeof color == 'undefined')
+            color = Color.White;
+        this.letter = letter;
+        this.color = color;
+    }
+}
+// Choice of how to transition a cell to its new state
+var AnimationChoice;
+(function (AnimationChoice) {
+    AnimationChoice[AnimationChoice["Immediate"] = 0] = "Immediate";
+    AnimationChoice[AnimationChoice["Flip"] = 1] = "Flip";
+})(AnimationChoice || (AnimationChoice = {}));
+class CellTransition {
+}
+class Delay {
+    constructor(duration) {
+        this.duration = duration;
+    }
+}
+class GameGrid {
+    constructor(root, nRows, nCols) {
+        if (typeof nRows === 'undefined')
+            nRows = 6;
+        if (typeof nCols === 'undefined')
+            nCols = 5;
+        this.nRows = nRows;
+        this.nCols = nCols;
+        this.currentGuess = '';
+        this.cells = [];
+        for (let r = 0; r < this.nRows; ++r) {
+            let row_ = [];
+            for (let c = 0; c < this.nCols; ++c) {
+                let cell = document.createElement("div");
+                cell.classList.add('grid-cell');
+                root.appendChild(cell);
+                row_.push(cell);
+            }
+            this.cells.push(row_);
+        }
+        this.transitions = [];
+        for (let r = 0; r < this.nRows; ++r) {
+            let row = [];
+            for (let c = 0; c < this.nCols; ++c) {
+                row.push([]);
+            }
+            this.transitions.push(row);
+        }
+        this.setActiveCell(0, 0);
+    }
+    clear() {
+        for (let r = 0; r < this.nRows; ++r) {
+            for (let c = 0; c < this.nCols; ++c) {
+                this.pushTransition(r, c, new Delay(100 * c + 58 * r));
+                let transition = new CellTransition();
+                transition.target = new CellState('', Color.White);
+                transition.animationChoice = AnimationChoice.Flip;
+                this.pushTransition(r, c, transition);
+            }
+        }
+        this.currentGuess = '';
+        this.setActiveCell(0, 0);
+    }
+    setActiveCell(row, col) {
+        if (row == this.activeRow && col == this.activeCol)
+            return;
+        if (this.activeCol < this.nCols)
+            this.cells[this.activeRow][this.activeCol].classList.remove('active');
+        if (col < this.nCols)
+            this.cells[row][col].classList.add('active');
+        this.activeRow = row;
+        this.activeCol = col;
+    }
+    pushTransition(row, col, transition) {
+        let grid = this;
+        let cell = this.cells[row][col];
+        let isAnimating = this.transitions[row][col].length > 0;
+        this.transitions[row][col].push(transition);
+        function handleEnd() {
+            cell.classList.remove('flip_right_b');
+            cell.removeEventListener('animationend', handleEnd);
+            grid.transitions[row][col].shift();
+            if (grid.transitions[row][col].length > 0)
+                setTimeout(handleStart, 0);
+        }
+        function handleMiddle() {
+            let transition = grid.transitions[row][col][0];
+            cell.classList.remove('flip_right_a');
+            grid.setCellDirect(cell, transition.target.letter, transition.target.color);
+            cell.classList.add('flip_right_b');
+            cell.removeEventListener('animationend', handleMiddle);
+            cell.addEventListener('animationend', handleEnd);
+        }
+        function handleStart() {
+            let transition = grid.transitions[row][col][0];
+            if (transition instanceof Delay) {
+                setTimeout(() => {
+                    grid.transitions[row][col].shift();
+                    if (grid.transitions[row][col].length > 0)
+                        setTimeout(handleStart, 0);
+                }, transition.duration);
+            }
+            else if (transition.animationChoice == AnimationChoice.Immediate) {
+                grid.setCellDirect(grid.cells[row][col], transition.target.letter, transition.target.color);
+                grid.transitions[row][col].shift();
+                if (grid.transitions[row][col].length > 0)
+                    setTimeout(handleStart, 0);
+            }
+            else {
+                grid.cells[row][col].classList.add('flip_right_a');
+                grid.cells[row][col].addEventListener('animationend', handleMiddle);
+            }
+        }
+        if (!isAnimating) {
+            handleStart();
+        }
+    }
+    setCellDirect(cell, letter, color) {
+        cell.innerHTML = letter;
+        cell.classList.remove('green');
+        cell.classList.remove('yellow');
+        cell.classList.remove('gray');
+        if (color == Color.Green)
+            cell.classList.add('green');
+        if (color == Color.Yellow)
+            cell.classList.add('yellow');
+        if (color == Color.Gray)
+            cell.classList.add('gray');
+    }
 }
 function flushEvents() {
     flushEventsTimeout = undefined;
@@ -28,6 +261,7 @@ function flushEvents() {
     }
 }
 function logEvent(type, payload) {
+    console.log(type, payload);
     if (gtag) {
         gtag('event', type, payload);
     }
@@ -41,41 +275,6 @@ function logEvent(type, payload) {
         }
     }
 }
-function setUpGrid() {
-    let grid = document.getElementById("grid");
-    for (let r = 0; r < nrows; ++r) {
-        // let row = document.createElement("div");
-        // row.classList.add('grid-row');
-        let row_ = [];
-        for (let c = 0; c < ncols; ++c) {
-            let cell = document.createElement("div");
-            cell.classList.add('grid-cell');
-            if (r === activeRow && c === activeCol) {
-                cell.classList.add("active");
-            }
-            grid.appendChild(cell);
-            row_.push(cell);
-        }
-        // grid.appendChild(row);
-        cells.push(row_);
-    }
-}
-function deactivateCell() {
-    let cell = cells[activeRow][activeCol];
-    cell.classList.remove('active');
-}
-function clearCell() {
-    let cell = cells[activeRow][activeCol];
-    cell.innerHTML = '';
-}
-function activateCell() {
-    let cell = cells[activeRow][activeCol];
-    cell.classList.add('active');
-}
-function setCell(contents) {
-    let cell = cells[activeRow][activeCol];
-    cell.innerHTML = contents;
-}
 function getListOfKeyboardKeys() {
     return [
         ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -83,29 +282,18 @@ function getListOfKeyboardKeys() {
         ['enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'del']
     ];
 }
-function clearKeyColors() {
-    let keys = getListOfKeyboardKeys();
-    for (let row = 0; row < keys.length; ++row) {
-        for (let col = 0; col < keys[row].length; ++col) {
-            let key = document.getElementById('key_' + keys[row][col]);
-            key.classList.remove('green');
-            key.classList.remove('yellow');
-            key.classList.remove('gray');
-        }
-    }
-}
 function colorKey(letter, color) {
     let key = document.getElementById("key_" + letter);
-    if (color === 'green') {
+    if (color === Color.Green) {
         key.classList.remove('yellow');
         key.classList.add('green');
     }
-    if (color === 'yellow') {
+    if (color === Color.Yellow) {
         if (key.classList.contains('green'))
             return;
         key.classList.add('yellow');
     }
-    if (color === 'gray') {
+    if (color === Color.Gray) {
         if (key.classList.contains('green'))
             return;
         if (key.classList.contains('yellow'))
@@ -127,6 +315,7 @@ function animate(element, anim) {
     element.classList.add(anim);
     element.addEventListener('animationend', handleEnd);
 }
+// re-use the grid functionality for this
 function flipAndColor(element, color, delay) {
     function handleEnd() {
         element.classList.remove('flip_right_b');
@@ -136,27 +325,6 @@ function flipAndColor(element, color, delay) {
         element.classList.remove('flip_right_a');
         element.classList.add(color);
         element.classList.add('flip_right_b');
-        element.removeEventListener('animationend', handleMiddle);
-        element.addEventListener('animationend', handleEnd);
-    }
-    function handleStart() {
-        element.classList.add('flip_right_a');
-        element.addEventListener('animationend', handleMiddle);
-    }
-    window.setTimeout(handleStart, 1000 * delay);
-}
-function flipAndErase(element, delay) {
-    function handleEnd() {
-        element.classList.remove('flip_right_b');
-        element.removeEventListener('animationend', handleEnd);
-    }
-    function handleMiddle() {
-        element.classList.remove('flip_right_a');
-        element.classList.remove('green');
-        element.classList.remove('yellow');
-        element.classList.remove('gray');
-        element.classList.add('flip_right_b');
-        element.innerHTML = '';
         element.removeEventListener('animationend', handleMiddle);
         element.addEventListener('animationend', handleEnd);
     }
@@ -190,14 +358,7 @@ function handleKeyboardKey(e) {
     }
     handleKey(pressedKey);
 }
-function clearAndEraseColor(element) {
-    element.innerHTML = '';
-    element.classList.remove('green');
-    element.classList.remove('yellow');
-    element.classList.remove('gray');
-}
-let explanationAnimationDone = false;
-let explanationTimeout;
+let explanationAnimationStarted = false;
 function showExplanation(show) {
     let help = document.getElementById("explanation-wrapper");
     if (show) {
@@ -206,17 +367,12 @@ function showExplanation(show) {
     else {
         help.style.display = 'none';
     }
-    if (!explanationAnimationDone) {
+    if (!explanationAnimationStarted) {
         let grid = document.getElementById("help-grid");
         let cells = grid.children;
         function step(n) {
             let delay = 2000;
             if (n == 0) {
-                clearAndEraseColor(cells[0]);
-                clearAndEraseColor(cells[1]);
-                clearAndEraseColor(cells[2]);
-                clearAndEraseColor(cells[3]);
-                clearAndEraseColor(cells[4]);
                 document.getElementById("help-instruction-0").style.visibility = 'visible';
                 document.getElementById("help-instruction-1").style.visibility = 'hidden';
                 document.getElementById("help-instruction-2").style.visibility = 'hidden';
@@ -257,21 +413,15 @@ function showExplanation(show) {
             else if (n == 8) {
                 document.getElementById("help-instruction-2").style.visibility = 'visible';
                 delay = 10000;
-                explanationAnimationDone = true;
             }
             if (n < 8) {
                 let nextStep = (n + 1) % 10;
-                explanationTimeout = window.setTimeout(() => step(nextStep), delay);
+                window.setTimeout(() => step(nextStep), delay);
             }
         }
         if (show) {
             window.setTimeout(() => step(0), 0);
-        }
-    }
-    if (!show) {
-        if (explanationTimeout !== undefined) {
-            clearTimeout(explanationTimeout);
-            explanationTimeout = undefined;
+            explanationAnimationStarted = true;
         }
     }
 }
@@ -291,6 +441,7 @@ function showEndOfGame(show) {
         eog.style.display = 'flex';
         document.getElementById("button-help").style.display = 'none';
         document.getElementById("button-show-eog").style.display = 'block';
+        document.getElementById('end-of-game-restart').focus();
     }
     else {
         eog.style.display = 'none';
@@ -321,71 +472,61 @@ function storageAvailable(type) {
             (storage && storage.length !== 0);
     }
 }
-function canUseLocalStorage() {
-    return storageAvailable('localStorage');
+const usingLocalStorage = storageAvailable('localStorage');
+function getFromStorage(key) {
+    if (!usingLocalStorage)
+        return undefined;
+    return localStorage.getItem(key);
 }
-const usingLocalStorage = canUseLocalStorage();
 function getStatistics() {
     let freqs = [0, 0, 0, 0, 0, 0, 0];
     let streak = 0;
+    let maxStreak = 0;
     if (usingLocalStorage) {
         let freqsString = localStorage.getItem('weurdel/frequencies');
         let streakString = localStorage.getItem('weurdel/streak');
+        let maxStreakString = localStorage.getItem('weurdel/maxStreak');
         if (freqsString) {
             freqs = freqsString.split('/').map(x => parseInt(x));
         }
         if (streakString) {
             streak = parseInt(streakString);
+            maxStreak = Math.max(streak, maxStreak);
+        }
+        if (maxStreakString) {
+            maxStreak = parseInt(maxStreakString);
         }
     }
     return {
         'freqs': freqs,
         'streak': streak,
+        'maxStreak': maxStreak,
     };
 }
-function markEndOfGame(winOrLoss, numberOfGuesses) {
-    if (gameIsOver)
-        return;
-    gameIsOver = true;
+function updateStatisticsAndClearCurrentGame() {
     let stats = getStatistics();
-    if (winOrLoss == 'loss') {
+    if (game.state == GameState.Loss) {
         stats['freqs'][0] += 1;
         stats['streak'] = 0;
     }
-    else {
-        stats['freqs'][numberOfGuesses] += 1;
+    else if (game.state == GameState.Win) {
+        stats['freqs'][game.guesses.length] += 1;
         stats['streak'] += 1;
+        stats['maxStreak'] = Math.max(stats['maxStreak'], stats['streak']);
     }
     if (usingLocalStorage) {
         localStorage.setItem('weurdel/frequencies', stats['freqs'].join('/'));
         localStorage.setItem('weurdel/streak', stats['streak'].toString());
+        localStorage.setItem('weurdel/maxStreak', stats['maxStreak'].toString());
         localStorage.removeItem('weurdel/currentGame');
     }
 }
 function startNewGame() {
-    console.log("new game!");
-    for (let i = 0; i < nrows; ++i) {
-        for (let j = 0; j < ncols; ++j) {
-            flipAndErase(cells[i][j], 0.1 * (0.58 * i + j));
-        }
-    }
-    clearKeyColors();
-    generateNewGame();
-    logEvent('start_of_game', {
-        'game_id': gameId,
-        'target': target
-    });
-    activeRow = 0;
-    activeCol = 0;
-    currentGuess = '';
-    gameIsOver = false;
+    clearKeyboardColors();
+    game = new Game();
+    logStartOfGameEvent(game);
+    grid.clear();
     showEogButton(false);
-}
-function generateGameId() {
-    let suffix = '';
-    suffix += Math.floor(256 * Math.random()).toString(16);
-    suffix += Math.floor(256 * Math.random()).toString(16);
-    return new Date().toISOString() + '_' + suffix;
 }
 function setEndOfGameMessage(msg) {
     let elem = document.getElementById("end-of-game-message");
@@ -399,158 +540,127 @@ function setHistogramWidths() {
     }
     document.getElementById("freq-bar-loss").style.width = `${6 * freqs[0] / maxFreq}em`;
     document.getElementById("freq-label-loss").innerHTML = freqs[0].toString();
-    for (let i = 1; i < nrows + 1; ++i) {
+    for (let i = 1; i < freqs.length; ++i) {
         document.getElementById("freq-bar-" + i).style.width = `${6 * freqs[i] / maxFreq}em`;
         document.getElementById("freq-label-" + i).innerHTML = freqs[i].toString();
     }
 }
-function colorRow(row, guess) {
-    let reference = target.split('');
-    // greens
-    for (let c = 0; c < ncols; ++c) {
-        if (guess[c] === reference[c]) {
-            flipAndColor(cells[row][c], 'green', c * 0.12);
-            reference[c] = '_';
-            let letter = guess[c];
-            colorKey(letter, 'green');
-        }
+function determineEndOfGameMessage() {
+    let result;
+    let stats = getStatistics();
+    let streak = stats['streak'];
+    let maxStreak = stats['maxStreak'];
+    if (game.state == GameState.Loss) {
+        result = "Het woord was <em>" + game.target + "</em>.";
     }
-    // yellows & grays
-    for (let c = 0; c < ncols; ++c) {
-        if (guess[c] === target[c])
-            continue;
-        let found = false;
-        for (let d = 0; d < ncols; ++d) {
-            if (guess[c] === reference[d]) {
-                flipAndColor(cells[row][c], 'yellow', c * 0.12);
-                reference[d] = '_';
-                let letter = guess[c];
-                colorKey(letter, 'yellow');
-                found = true;
-                break;
+    else if (game.state == GameState.Playing) {
+        result = "";
+    }
+    else {
+        if (streak >= 3) {
+            if (streak % 10 == 0) {
+                result = `Al ${streak} keer op rij<br>gewonnen! Hoera!`;
+            }
+            else {
+                result = `Al ${streak} keer op rij<br>gewonnen!`;
             }
         }
-        if (!found) {
-            flipAndColor(cells[row][c], 'gray', c * 0.12);
-            let letter = guess[c];
-            colorKey(letter, 'gray');
+        else {
+            result = "Gewonnen!";
         }
     }
+    if (maxStreak >= 3) {
+        result += `<br>Langste winstreeks: ${maxStreak}`;
+    }
+    return result;
 }
 function handleKey(name) {
     name = name.toLowerCase();
-    if (gameIsOver) {
-        if (name == 'enter' || name == 'space') {
-            if (document.getElementById("end-of-game-wrapper").style.display == 'flex') {
-                showEndOfGame(false);
-                startNewGame();
-            }
-        }
+    if (game.state != GameState.Playing) {
         return;
     }
     if (name === 'enter' || name == 'space') {
-        if (activeCol !== ncols) {
+        if (grid.activeCol !== grid.nCols) {
             return;
         }
-        console.assert(currentGuess.length === ncols);
-        let is_valid_guess = is_valid_word(currentGuess);
+        let is_valid_guess = is_valid_word(grid.currentGuess);
         logEvent('submit_guess', {
-            'game_id': gameId,
-            'guess': currentGuess,
-            'guesses': activeRow + 1,
+            'game_id': game.gameId,
+            'guess': grid.currentGuess,
+            'guesses': grid.activeRow + 1,
             'is_valid_guess': is_valid_guess,
         });
         if (!is_valid_guess) {
-            for (let c = 0; c < ncols; ++c) {
-                cells[activeRow][c].classList.remove('shake');
-                shake(cells[activeRow][c]);
+            for (let c = 0; c < grid.nCols; ++c) {
+                grid.cells[grid.activeRow][c].classList.remove('shake');
+                shake(grid.cells[grid.activeRow][c]);
             }
             return;
         }
+        game.submitWord(grid.currentGuess);
+        updateCellColors(game, grid.activeRow);
+        updateKeyboardColors(game, grid.activeRow);
         // store new game state
         if (usingLocalStorage) {
-            let words = [];
-            for (let i = 0; i <= activeRow; ++i) {
-                let word = '';
-                for (let j = 0; j < ncols; ++j) {
-                    word += cells[i][j].innerHTML;
-                }
-                words.push(word);
-            }
             let state = JSON.stringify({
-                'game_id': gameId,
-                'target': target,
-                'guesses': words
+                'game_id': game.gameId,
+                'target': game.target,
+                'guesses': game.guesses
             });
             localStorage.setItem('weurdel/currentGame', state);
         }
-        colorRow(activeRow, currentGuess);
-        if (currentGuess === target) {
+        if (game.state == GameState.Win) {
             logEvent('end_of_game', {
-                'game_id': gameId,
+                'game_id': game.gameId,
                 'outcome': 'win',
-                'guesses': activeRow + 1,
-                'target': target
+                'guesses': grid.activeRow + 1,
+                'target': game.target
             });
-            markEndOfGame('win', activeRow + 1);
-            let streak = getStatistics()['streak'];
-            if (streak >= 3) {
-                if (streak % 10 == 0) {
-                    setEndOfGameMessage(`Al ${streak} keer op rij<br>gewonnen! Hoera!`);
-                }
-                else {
-                    setEndOfGameMessage(`Al ${streak} keer op rij<br>gewonnen!`);
-                }
-            }
-            else {
-                setEndOfGameMessage("Gewonnen!");
-            }
+            updateStatisticsAndClearCurrentGame();
+            setEndOfGameMessage(determineEndOfGameMessage());
             setHistogramWidths();
             setTimeout(() => { showEndOfGame(true); showEogButton(true); }, 1000);
         }
-        else if (activeRow < nrows - 1) {
-            activeRow += 1;
-            activeCol = 0;
-            activateCell();
-            currentGuess = '';
+        else if (game.state == GameState.Playing) {
+            grid.setActiveCell(grid.activeRow + 1, 0);
+            grid.currentGuess = '';
         }
         else {
             logEvent('end_of_game', {
-                'game_id': gameId,
+                'game_id': game.gameId,
                 'outcome': 'loss',
-                'guesses': activeRow + 1,
-                'target': target
+                'guesses': grid.activeRow + 1,
+                'target': game.target
             });
-            markEndOfGame('loss', activeRow + 1);
-            setEndOfGameMessage("Het woord was " + target);
+            updateStatisticsAndClearCurrentGame();
+            setEndOfGameMessage(determineEndOfGameMessage());
+            ;
             setHistogramWidths();
             setTimeout(() => { showEndOfGame(true); showEogButton(true); }, 1000);
         }
     }
     else if (name === 'del') {
-        if (activeCol === 0) {
+        if (grid.activeCol === 0) {
             return;
         }
-        if (activeCol < ncols) {
-            deactivateCell();
-        }
-        activeCol -= 1;
-        activateCell();
-        clearCell();
-        currentGuess = currentGuess.slice(0, -1);
+        grid.currentGuess = grid.currentGuess.slice(0, -1);
+        let transition = new CellTransition();
+        transition.target = new CellState('', Color.White);
+        transition.animationChoice = AnimationChoice.Immediate;
+        grid.setActiveCell(grid.activeRow, grid.activeCol - 1);
+        grid.pushTransition(grid.activeRow, grid.activeCol, transition);
     }
     else {
-        if (activeCol === ncols) {
+        if (grid.activeCol < 0) {
             return;
         }
-        setCell(name);
-        deactivateCell();
-        animate(cells[activeRow][activeCol], 'pulse');
-        activeCol += 1;
-        currentGuess = currentGuess + name;
-        if (activeCol < ncols) {
-            activateCell();
-        }
+        let transition = new CellTransition();
+        transition.target = new CellState(name, Color.White);
+        transition.animationChoice = AnimationChoice.Immediate;
+        grid.pushTransition(grid.activeRow, grid.activeCol, transition);
+        animate(grid.cells[grid.activeRow][grid.activeCol], 'pulse');
+        grid.currentGuess = grid.currentGuess + name;
+        grid.setActiveCell(grid.activeRow, grid.activeCol + 1);
     }
 }
 function setUpKeyboard() {
@@ -587,40 +697,47 @@ function setUpButtonHandlers() {
         key.addEventListener("click", () => handleKey(name));
     }
 }
+function updateKeyboardColors(game, row) {
+    let colors = game.colors[row];
+    let word = game.guesses[row];
+    for (let i = 0; i < game.nCols; ++i)
+        colorKey(word[i], colors[i]);
+}
+function clearKeyboardColors() {
+    let keys = getListOfKeyboardKeys();
+    for (let r = 0; r < keys.length; r++) {
+        for (let c = 0; c < keys[r].length; c++) {
+            document.getElementById("key_" + keys[r][c]).classList.remove('green');
+            document.getElementById("key_" + keys[r][c]).classList.remove('yellow');
+            document.getElementById("key_" + keys[r][c]).classList.remove('gray');
+        }
+    }
+}
+function updateCellColors(game, r) {
+    for (let c = 0; c < game.nCols; ++c) {
+        if (c > 0) {
+            let delay = new Delay(120 * c);
+            grid.pushTransition(r, c, delay);
+        }
+        let transition = new CellTransition();
+        transition.target = new CellState(game.guesses[r][c], game.colors[r][c]);
+        transition.animationChoice = AnimationChoice.Flip;
+        grid.pushTransition(r, c, transition);
+    }
+}
 function go() {
-    setUpGrid();
     setUpKeyboard();
     setUpButtonHandlers();
     showExplanation(false);
     showEndOfGame(false);
-    if (usingLocalStorage && localStorage.getItem('weurdel/currentGame')) {
-        let currentGame = JSON.parse(localStorage.getItem('weurdel/currentGame'));
-        console.log('loading game');
-        gameId = currentGame['game_id'];
-        target = currentGame['target'];
-        console.log(gameId);
-        console.log(target);
-        logEvent('load_game', {
-            'game_id': gameId
-        });
-        let words = currentGame['guesses'];
-        for (let i = 0; i < words.length; ++i) {
-            for (let j = 0; j < ncols; ++j) {
-                cells[i][j].innerHTML = words[i][j];
-            }
-            colorRow(i, words[i]);
-        }
-        activeRow = words.length;
-        activeCol = 0;
-        currentGuess = '';
+    game = Game.loadOrNew();
+    grid = new GameGrid(document.getElementById('grid'));
+    for (let r = 0; r < game.guesses.length; ++r) {
+        updateKeyboardColors(game, r);
+        updateCellColors(game, r);
     }
-    else {
-        generateNewGame();
-        logEvent('start_of_game', {
-            'game_id': gameId,
-            'target': target
-        });
-    }
+    grid.setActiveCell(game.guesses.length, 0);
     document.addEventListener("keydown", handleKeyboardKey);
 }
+//# sourceURL=main.js
 //# sourceMappingURL=main.js.map
