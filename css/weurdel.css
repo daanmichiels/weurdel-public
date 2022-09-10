@@ -22,6 +22,14 @@ button {
   font-size: 1.8em;
   background-color: #ffffff;
   font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
+  height: 2.5rem;
+  width: 2.5rem;
+}
+@media (max-height: 560px) {
+  #button-help, #button-show-eog {
+    height: 1.8rem;
+    width: 1.8rem;
+  }
 }
 #button-help:hover, #button-show-eog:hover {
   background-color: #cccccc;
@@ -153,7 +161,14 @@ div#title {
   font-variant: small-caps;
   margin: 0.2rem;
   flex-grow: 0;
-  height: 1.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+@media (max-height: 560px) {
+  div#title {
+    height: 1.8rem;
+  }
 }
 
 #grid-wrapper {
@@ -187,6 +202,18 @@ div#title {
   justify-content: center;
   width: 50px;
   height: 50px;
+}
+@media (max-height: 560px), (max-width: 300px) {
+  #grid div.grid-cell, #help-grid div.grid-cell {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (min-height: 800px) and (min-width: 500px) {
+  #grid div.grid-cell, #help-grid div.grid-cell {
+    width: 70px;
+    height: 70px;
+  }
 }
 #grid div.grid-cell.active, #help-grid div.grid-cell.active {
   border: 1px solid #444444;
