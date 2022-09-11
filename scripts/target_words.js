@@ -1331,7 +1331,6 @@ const targetWords = [
     "verve",
     "vezel",
     "video",
-    "vieze",
     "villa",
     "vinyl",
     "viool",
