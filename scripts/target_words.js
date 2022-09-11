@@ -65,7 +65,6 @@ const targetWords = [
     "angst",
     "anijs",
     "animo",
-    "anion",
     "anjer",
     "anker",
     "anode",
