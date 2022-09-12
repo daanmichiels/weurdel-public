@@ -285,6 +285,7 @@ function getListOfKeyboardKeys() {
 function colorKey(letter, color) {
     let key = document.getElementById("key_" + letter);
     if (color === Color.Green) {
+        key.classList.remove('gray');
         key.classList.remove('yellow');
         key.classList.add('green');
     }
