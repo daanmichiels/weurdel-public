@@ -190,7 +190,7 @@ div#title {
   gap: 2px;
   max-width: 380px;
   max-height: 456px;
-  grid-template-columns: auto auto auto auto auto;
+  grid-template-columns: auto auto auto auto auto auto;
 }
 #grid div.grid-cell, #help-grid div.grid-cell {
   font-size: 30px;
@@ -341,4 +341,4 @@ div#title {
   }
 }
 
-/*# sourceMappingURL=weurdel.css.map */
+/*# sourceMappingURL=weurdel6.css.map */

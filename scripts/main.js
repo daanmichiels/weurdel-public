@@ -26,7 +26,7 @@ class Game {
         if (typeof nRows === 'undefined')
             nRows = 6;
         if (typeof nCols === 'undefined')
-            nCols = 5;
+            nCols = wordLength;
         this.nRows = nRows;
         this.nCols = nCols;
         this.gameId = Game.generateGameId();
@@ -92,7 +92,7 @@ class Game {
         return new Date().toISOString() + '_' + suffix;
     }
     static loadOrNew() {
-        let currentGameJSON = getFromStorage('weurdel/currentGame');
+        let currentGameJSON = getFromStorage(`${getBaseKey()}/currentGame`);
         if (currentGameJSON == null) {
             let game = new Game();
             logStartOfGameEvent(game);
@@ -143,7 +143,7 @@ class GameGrid {
         if (typeof nRows === 'undefined')
             nRows = 6;
         if (typeof nCols === 'undefined')
-            nCols = 5;
+            nCols = wordLength;
         this.nRows = nRows;
         this.nCols = nCols;
         this.currentGuess = '';
@@ -479,14 +479,22 @@ function getFromStorage(key) {
         return undefined;
     return localStorage.getItem(key);
 }
+function getBaseKey() {
+    let baseKey = `weurdel${wordLength}`;
+    if (wordLength === 5) {
+        baseKey = 'weurdel';
+    }
+    return baseKey;
+}
 function getStatistics() {
     let freqs = [0, 0, 0, 0, 0, 0, 0];
     let streak = 0;
     let maxStreak = 0;
     if (usingLocalStorage) {
-        let freqsString = localStorage.getItem('weurdel/frequencies');
-        let streakString = localStorage.getItem('weurdel/streak');
-        let maxStreakString = localStorage.getItem('weurdel/maxStreak');
+        let baseKey = getBaseKey();
+        let freqsString = localStorage.getItem(`${baseKey}/frequencies`);
+        let streakString = localStorage.getItem(`${baseKey}/streak`);
+        let maxStreakString = localStorage.getItem(`${baseKey}/maxStreak`);
         if (freqsString) {
             freqs = freqsString.split('/').map(x => parseInt(x));
         }
@@ -516,10 +524,11 @@ function updateStatisticsAndClearCurrentGame() {
         stats['maxStreak'] = Math.max(stats['maxStreak'], stats['streak']);
     }
     if (usingLocalStorage) {
-        localStorage.setItem('weurdel/frequencies', stats['freqs'].join('/'));
-        localStorage.setItem('weurdel/streak', stats['streak'].toString());
-        localStorage.setItem('weurdel/maxStreak', stats['maxStreak'].toString());
-        localStorage.removeItem('weurdel/currentGame');
+        let baseKey = getBaseKey();
+        localStorage.setItem(`${baseKey}/frequencies`, stats['freqs'].join('/'));
+        localStorage.setItem(`${baseKey}/streak`, stats['streak'].toString());
+        localStorage.setItem(`${baseKey}/maxStreak`, stats['maxStreak'].toString());
+        localStorage.removeItem(`${baseKey}/currentGame`);
     }
 }
 function startNewGame() {
@@ -608,7 +617,8 @@ function handleKey(name) {
                 'target': game.target,
                 'guesses': game.guesses
             });
-            localStorage.setItem('weurdel/currentGame', state);
+            let baseKey = getBaseKey();
+            localStorage.setItem(`${baseKey}/currentGame`, state);
         }
         if (game.state == GameState.Win) {
             logEvent('end_of_game', {

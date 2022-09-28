@@ -2,11 +2,11 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
+    <meta name="description" content="Zes-letter-versie van Weurdel. Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
     Gebruik de groene, gele en grijze hints om het woord te raden in zo weinig mogelijk beurten." />
-    <script>let wordLength = 5;</script>
-    <script src="scripts/target_words_5.js"></script>
-    <script src="scripts/accepted_words_5.js"></script>
+    <script>let wordLength = 7;</script>
+    <script src="scripts/target_words_7.js"></script>
+    <script src="scripts/accepted_words_7.js"></script>
     <script src="scripts/main.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3RZC9F6RY"></script>
     <script>
@@ -18,7 +18,7 @@
             gtag('config', 'G-V3RZC9F6RY');
         }
     </script>
-    <link rel="stylesheet" href="css/weurdel5.css" />
+    <link rel="stylesheet" href="css/weurdel7.css" />
     <title>Weurdel: raad het woord (zoals Wordle, in het Nederlands)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
@@ -27,7 +27,7 @@
     <div id="title">Weurdel</div>
     <div id="explanation-no-js">
         Weurdel is de Nederlandstalige versie van het populaire woordspelletje Wordle.
-        Het doel is een vijfletterwoord te raden in hoogstens zes pogingen.
+        Het doel is een zevenletterwoord te raden in hoogstens zes pogingen.
         Na elke poging krijg je groene, gele of grijze hints:
         <ul>
             <li>een groene letter staat op de juiste plaats,</li>
@@ -36,9 +36,9 @@
         </ul>
     </div>
 <!--    <div>-->
-<!--        <a href="#">5</a>-->
+<!--        <a href="index.html">5</a>-->
 <!--        <a href="play6.html">6</a>-->
-<!--        <a href="play7.html">7</a>-->
+<!--        <a href="#">7</a>-->
 <!--    </div>-->
     <button id="button-help" onclick="showExplanation(true)" style="display: block;">?</button>
     <button id="button-show-eog" onclick="showEndOfGame(true)" style="display: none;">
@@ -62,7 +62,7 @@
                     <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
                 </svg>
             </button>
-            <p>Vind het vijfletterwoord.</p>
+            <p>Vind het woord.</p>
             <div id="help-grid-wrapper">
             <div id="help-grid">
                 <div class="grid-cell"></div>
