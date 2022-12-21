@@ -95,6 +95,9 @@ class Game {
         let currentGameJSON = getFromStorage(`${getBaseKey()}/currentGame`);
         if (currentGameJSON == null) {
             let game = new Game();
+            if (handpickedEvent) {
+                game.target = handpickedEventTarget;
+            }
             logStartOfGameEvent(game);
             return game;
         }
@@ -480,6 +483,9 @@ function getFromStorage(key) {
     return localStorage.getItem(key);
 }
 function getBaseKey() {
+    if (handpickedEvent) {
+        return `weurdel_handpicked_${handpickedEventName}`;
+    }
     let baseKey = `weurdel${wordLength}`;
     if (wordLength === 5) {
         baseKey = 'weurdel';
