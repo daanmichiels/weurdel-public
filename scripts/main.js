@@ -571,7 +571,7 @@ function determineEndOfGameMessage() {
     let maxStreak = stats['maxStreak'];
     if (game.state == GameState.Loss) {
         if (handpickedEvent && handpickedEventTarget === 'olijf') {
-            result = "Oeps. Misschien kan je opnieuw proberen?";
+            result = "Oeps. Misschien kan je<br>opnieuw proberen?";
         }
         else {
             result = "Het woord was <em>" + game.target + "</em>.";
@@ -591,7 +591,7 @@ function determineEndOfGameMessage() {
         }
         else {
             if (handpickedEvent && handpickedEventTarget === 'olijf') {
-                result = "Gewonnen!<br>Het is een olijf<em>boom</em>, natuurlijk.";
+                result = "Gewonnen! Het is een<br>olijf<em>boom</em>, natuurlijk.";
             }
             else {
                 result = "Gewonnen!";
