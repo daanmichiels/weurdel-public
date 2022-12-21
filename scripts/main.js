@@ -540,6 +540,9 @@ function updateStatisticsAndClearCurrentGame() {
 function startNewGame() {
     clearKeyboardColors();
     game = new Game();
+    if (handpickedEvent) {
+        game.target = handpickedEventTarget;
+    }
     logStartOfGameEvent(game);
     grid.clear();
     showEogButton(false);
