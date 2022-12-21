@@ -570,7 +570,12 @@ function determineEndOfGameMessage() {
     let streak = stats['streak'];
     let maxStreak = stats['maxStreak'];
     if (game.state == GameState.Loss) {
-        result = "Het woord was <em>" + game.target + "</em>.";
+        if (handpickedEvent && handpickedEventTarget === 'olijf') {
+            result = "Oeps. Misschien kan je opnieuw proberen?";
+        }
+        else {
+            result = "Het woord was <em>" + game.target + "</em>.";
+        }
     }
     else if (game.state == GameState.Playing) {
         result = "";
@@ -585,7 +590,12 @@ function determineEndOfGameMessage() {
             }
         }
         else {
-            result = "Gewonnen!";
+            if (handpickedEvent && handpickedEventTarget === 'olijf') {
+                result = "Gewonnen!<br>Het is een olijf<em>boom</em>, natuurlijk.";
+            }
+            else {
+                result = "Gewonnen!";
+            }
         }
     }
     if (maxStreak >= 3) {
