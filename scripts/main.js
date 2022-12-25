@@ -594,7 +594,7 @@ function determineEndOfGameMessage() {
                 result = "Gewonnen! Het is een<br>olijf<em>boom</em>, natuurlijk.";
             }
             else if (handpickedEvent && handpickedEventTarget === 'sauna') {
-                result = "Gewonnen!<br>Dit is een bon voor een uitstap<br>naar een spa samen met mij.";
+                result = "Gewonnen!<br>Dit is een bon voor<br>een uitstap naar een spa samen met mij.";
             }
             else {
                 result = "Gewonnen!";
