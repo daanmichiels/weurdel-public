@@ -95,7 +95,7 @@ class Game {
         let currentGameJSON = getFromStorage(`${getBaseKey()}/currentGame`);
         if (currentGameJSON == null) {
             let game = new Game();
-            if (handpickedEvent) {
+            if (typeof handpickedEvent !== 'undefined') {
                 game.target = handpickedEventTarget;
             }
             logStartOfGameEvent(game);
@@ -483,7 +483,7 @@ function getFromStorage(key) {
     return localStorage.getItem(key);
 }
 function getBaseKey() {
-    if (handpickedEvent) {
+    if (typeof handpickedEvent !== 'undefined') {
         return `weurdel_handpicked_${handpickedEventName}`;
     }
     let baseKey = `weurdel${wordLength}`;
@@ -540,7 +540,7 @@ function updateStatisticsAndClearCurrentGame() {
 function startNewGame() {
     clearKeyboardColors();
     game = new Game();
-    if (handpickedEvent) {
+    if (typeof handpickedEvent !== 'undefined') {
         game.target = handpickedEventTarget;
     }
     logStartOfGameEvent(game);
