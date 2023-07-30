@@ -906,7 +906,6 @@ const targetWords = [
     "living",
     "loeren",
     "loggen",
-    "loggia",
     "logica",
     "logies",
     "lokaal",
