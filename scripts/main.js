@@ -363,6 +363,15 @@ function handleKeyboardKey(e) {
     handleKey(pressedKey);
 }
 let explanationAnimationStarted = false;
+function showMenu(show) {
+    let menu = document.getElementById("menu-wrapper");
+    if (show) {
+        menu.style.display = 'flex';
+    }
+    else {
+        menu.style.display = 'none';
+    }
+}
 function showExplanation(show) {
     let help = document.getElementById("explanation-wrapper");
     if (show) {
@@ -667,7 +676,6 @@ function handleKey(name) {
             });
             updateStatisticsAndClearCurrentGame();
             setEndOfGameMessage(determineEndOfGameMessage());
-            ;
             setHistogramWidths();
             setTimeout(() => { showEndOfGame(true); showEogButton(true); }, 1000);
         }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="description" content="Zes-letter-versie van Weurdel. Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
-    Gebruik de groene, gele en grijze hints om het woord te raden in zo weinig mogelijk beurten." />
+    Gebruik de groene, gele en grijze hints om het woord te raden in zo weinig mogelijk pogingen." />
     <script>let wordLength = 6;</script>
     <script src="scripts/target_words_6.js"></script>
     <script src="scripts/accepted_words_6.js"></script>
@@ -40,6 +40,13 @@
 <!--        <a href="#">6</a>-->
 <!--        <a href="play7.html">7</a>-->
 <!--    </div>-->
+    <button id="button-menu" onclick="showMenu(true)" style="display: block;">
+        <svg viewBox="-20 -20 140 140">
+            <path d="M 0 42 L 100 42 L 100 58 L 0 58 Z" fill="black" />
+            <path d="M 0 12 L 100 12 L 100 28 L 0 28 Z" fill="black" />
+            <path d="M 0 72 L 100 72 L 100 88 L 0 88 Z" fill="black" />
+        </svg>
+    </button>
     <button id="button-help" onclick="showExplanation(true)" style="display: block;">?</button>
     <button id="button-show-eog" onclick="showEndOfGame(true)" style="display: none;">
         <svg viewBox="-20 -20 140 140">
@@ -54,6 +61,18 @@
         </div>
     </div>
     <div id="keyboard">
+    </div>
+    <div id="menu-wrapper" onclick="showMenu(false)" style="display: none;">
+        <div id="menu" onclick="event.stopPropagation()">
+            <button id="menu-close" onclick="showMenu(false)">
+                <svg viewBox="-1 -1 2 2">
+                    <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
+                </svg>
+            </button>
+            <p>&nbsp;Woordlengte:&nbsp;&nbsp;</p>
+            <div class="menulink"><a href="index.html">5 letters</a></div>
+            <div class="menulink"><a href="#" onclick="showMenu(false)">6 letters</a></div>
+        </div>
     </div>
     <div id="explanation-wrapper" onclick="showExplanation(false)" style="display: none;">
         <div id="explanation" onclick="event.stopPropagation()">

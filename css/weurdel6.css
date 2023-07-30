@@ -14,6 +14,28 @@ button {
   font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
 }
 
+#button-menu {
+  border: none;
+  position: absolute;
+  left: 0.2rem;
+  top: 0.2rem;
+  font-size: 1.8em;
+  background-color: #ffffff;
+  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono", "Droid Sans Mono", monospace, monospace;
+  height: 2.5rem;
+  width: 2.5rem;
+}
+@media (max-height: 560px) {
+  #button-menu {
+    height: 1.8rem;
+    width: 1.8rem;
+  }
+}
+#button-menu:hover {
+  background-color: #cccccc;
+  cursor: pointer;
+}
+
 #button-help, #button-show-eog {
   border: none;
   position: absolute;
@@ -52,7 +74,11 @@ button {
   background-color: rgb(148, 148, 148);
 }
 
-#explanation-wrapper, #end-of-game-wrapper {
+.menulink a, .menulink a:visited, .menulink a:hover, .menulink a:active {
+  text-decoration: none;
+}
+
+#explanation-wrapper, #end-of-game-wrapper, #menu-wrapper {
   position: absolute;
   display: flex;
   justify-content: center;
@@ -63,7 +89,7 @@ button {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-#explanation-close, #end-of-game-close {
+#explanation-close, #end-of-game-close, #menu-close {
   position: absolute;
   top: 0;
   right: 0;
@@ -74,12 +100,12 @@ button {
   background-color: #ffffff;
   opacity: 0.3;
 }
-#explanation-close:hover, #end-of-game-close:hover {
+#explanation-close:hover, #end-of-game-close:hover, #menu-close:hover {
   opacity: 0.7;
   cursor: pointer;
 }
 
-#explanation, #end-of-game {
+#explanation, #end-of-game, #menu {
   position: relative;
   border: 1px solid black;
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.4);
@@ -89,10 +115,10 @@ button {
   align-items: center;
   flex-direction: column;
 }
-#explanation p, #end-of-game p {
+#explanation p, #end-of-game p, #menu p {
   margin-block-start: 0;
 }
-#explanation #help-instruction, #end-of-game #help-instruction {
+#explanation #help-instruction, #end-of-game #help-instruction, #menu #help-instruction {
   width: 15em;
 }
 
@@ -133,7 +159,7 @@ button {
   margin: 0.4em;
 }
 
-#end-of-game-restart {
+#end-of-game-restart, .menulink a {
   color: rgb(255, 255, 255);
   background-color: #1747e5;
   border: 1px solid black;
@@ -143,7 +169,7 @@ button {
   align-items: center;
   font-size: 1em;
 }
-#end-of-game-restart:hover {
+#end-of-game-restart:hover, .menulink a:hover {
   background-color: #0c31ad;
 }
 
