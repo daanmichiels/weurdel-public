@@ -2,11 +2,11 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
-    Gebruik de groene, gele en grijze hints om het woord te raden in zo weinig mogelijk pogingen." />
-    <script>let wordLength = 5;</script>
-    <script src="/scripts/target_words_5.js"></script>
-    <script src="/scripts/accepted_words_5.js"></script>
+    <meta name="description" content="Zes-letter-versie van Weurdel. Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
+    Gebruik de groene, gele en grijze hints om het woord van 6 letters te raden." />
+    <script>let wordLength = 6;</script>
+    <script src="/scripts/target_words_6.js"></script>
+    <script src="/scripts/accepted_words_6.js"></script>
     <script src="/scripts/main.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3RZC9F6RY"></script>
     <script>
@@ -18,8 +18,8 @@
             gtag('config', 'G-V3RZC9F6RY');
         }
     </script>
-    <link rel="stylesheet" href="/css/weurdel5.css" />
-    <title>Weurdel: raad het woord (zoals Wordle, in het Nederlands)</title>
+    <link rel="stylesheet" href="/css/weurdel6.css" />
+    <title>Weurdel: raad het woord (zoals Wordle, in het Nederlands, 6 letters)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 </head>
 <body onload="go()">
@@ -27,7 +27,7 @@
     <div id="title">Weurdel</div>
     <div id="explanation-no-js">
         Weurdel is de Nederlandstalige versie van het populaire woordspelletje Wordle.
-        Het doel is een vijfletterwoord te raden in hoogstens zes pogingen.
+        Het doel is een zesletterwoord te raden in hoogstens zes pogingen.
         Na elke poging krijg je groene, gele of grijze hints:
         <ul>
             <li>een groene letter staat op de juiste plaats,</li>
@@ -65,8 +65,8 @@
                 </svg>
             </button>
             <p>&nbsp;Woordlengte:&nbsp;&nbsp;</p>
-            <div class="menulink"><a href="#" onclick="showMenu(false)">5 letters</a></div>
-            <div class="menulink"><a href="/6">6 letters</a></div>
+            <div class="menulink"><a href="/">5 letters</a></div>
+            <div class="menulink"><a href="#" onclick="showMenu(false)">6 letters</a></div>
         </div>
     </div>
     <div id="explanation-wrapper" onclick="showExplanation(false)" style="display: none;">
@@ -76,15 +76,15 @@
                     <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
                 </svg>
             </button>
-            <p>Vind het vijfletterwoord.</p>
+            <p>Vind het letterwoord.</p>
             <div id="help-grid-wrapper">
-            <div id="help-grid">
-                <div class="grid-cell"></div>
-                <div class="grid-cell"></div>
-                <div class="grid-cell"></div>
-                <div class="grid-cell"></div>
-                <div class="grid-cell"></div>
-            </div>
+                <div id="help-grid">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
             </div>
             <div id="help-instruction">
                 <div id="help-instruction-0">
