@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Zes-letter-versie van Weurdel. Zoals het populaire woordspelletje Wordle, maar dan in het Nederlands!
+    Gebruik de groene, gele en grijze hints om het woord van 6 letters te raden." />
+    <script>let wordLength = 6;</script>
+    <script src="/scripts/target_words_6.js"></script>
+    <script src="/scripts/accepted_words_6.js"></script>
+    <script>
+        let handpickedEvent = true;
+        let handpickedEventName = "kado_kerst2023";  // for storage purposes
+        let handpickedEventTarget = "ballet";
+    </script>
+    <script src="/scripts/main.js"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V3RZC9F6RY"></script>
+    <script>
+        let host = window.location.hostname;
+        if (host.includes("weurdel.com")) {
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-V3RZC9F6RY');
+        }
+    </script>
+    <link rel="stylesheet" href="/css/weurdel6.css" />
+    <title>Weurdel: raad het woord (zoals Wordle, in het Nederlands, 6 letters)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+</head>
+<body onload="go()">
+<div id="wrapper">
+    <div id="title">Weurdel</div>
+    <div id="explanation-no-js">
+        Weurdel is de Nederlandstalige versie van het populaire woordspelletje Wordle.
+        Het doel is een zesletterwoord te raden in hoogstens zes pogingen.
+        Na elke poging krijg je groene, gele of grijze hints:
+        <ul>
+            <li>een groene letter staat op de juiste plaats,</li>
+            <li>een gele letter komt voor in het woord, maar staat op de verkeerde plaats,</li>
+            <li>een grijze letter komt niet voor.</li>
+        </ul>
+    </div>
+    <button id="button-menu" onclick="showMenu(true)" style="display: block;">
+        <svg viewBox="-20 -20 140 140">
+            <path d="M 0 42 L 100 42 L 100 58 L 0 58 Z" fill="black" />
+            <path d="M 0 12 L 100 12 L 100 28 L 0 28 Z" fill="black" />
+            <path d="M 0 72 L 100 72 L 100 88 L 0 88 Z" fill="black" />
+        </svg>
+    </button>
+    <button id="button-help" onclick="showExplanation(true)" style="display: block;">?</button>
+    <button id="button-show-eog" onclick="showEndOfGame(true)" style="display: none;">
+        <svg viewBox="-20 -20 140 140">
+            <path d="M 0 1 L 40 1 L 40 21 L 0 21 Z" fill="black" />
+            <path d="M 0 27 L 80 27 L 80 47 L 0 47 Z" fill="black" />
+            <path d="M 0 53 L 70 53 L 70 73 L 0 73 Z" fill="black" />
+            <path d="M 0 79 L 30 79 L 30 99 L 0 99 Z" fill="black" />
+        </svg>
+    </button>
+    <div id="grid-wrapper">
+        <div id="grid">
+        </div>
+    </div>
+    <div id="keyboard">
+    </div>
+    <div id="menu-wrapper" onclick="showMenu(false)" style="display: none;">
+        <div id="menu" onclick="event.stopPropagation()">
+            <button id="menu-close" onclick="showMenu(false)">
+                <svg viewBox="-1 -1 2 2">
+                    <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
+                </svg>
+            </button>
+            <p>&nbsp;Woordlengte:&nbsp;&nbsp;</p>
+            <div class="menulink"><a href="/">5 letters</a></div>
+            <div class="menulink"><a href="#" onclick="showMenu(false)">6 letters</a></div>
+        </div>
+    </div>
+    <div id="explanation-wrapper" onclick="showExplanation(false)" style="display: none;">
+        <div id="explanation" onclick="event.stopPropagation()">
+            <button id="explanation-close" onclick="showExplanation(false)">
+                <svg viewBox="-1 -1 2 2">
+                    <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
+                </svg>
+            </button>
+            <p>Vind het letterwoord.</p>
+            <div id="help-grid-wrapper">
+                <div id="help-grid">
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                    <div class="grid-cell"></div>
+                </div>
+            </div>
+            <div id="help-instruction">
+                <div id="help-instruction-0">
+                    Typ een bestaand woord.
+                </div>
+                <div id="help-instruction-1">
+                    Bevestig met <i>Enter</i>.
+                </div>
+                <div id="help-instruction-2">
+                    <div class="minisquare green" style="width: 18px; height: 18px; display: inline-block;"></div> <span>Groen: juiste letter, juiste plaats.</span><br>
+                    <div class="minisquare yellow" style="width: 18px; height: 18px; display: inline-block;"></div> <span>Geel: juiste letter, verkeerde plaats.</span><br>
+                    <div class="minisquare gray" style="width: 18px; height: 18px; display: inline-block;"></div> <span>Grijs: verkeerde letter.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="end-of-game-wrapper" onclick="showEndOfGame(false)" style="display: none;">
+        <div id="end-of-game" onclick="event.stopPropagation()">
+            <button id="end-of-game-close" onclick="showEndOfGame(false)">
+                <svg viewBox="-1 -1 2 2">
+                    <path d="M 0 0.2 L -0.8 1 L -1 0.8 L -0.2 0 L -1 -0.8 L -0.8 -1 L 0 -0.2 L 0.8 -1 L 1 -0.8 L 0.2 0 L 1 0.8 L 0.8 1 Z" fill="black"/>
+                </svg>
+            </button>
+            <div id="end-of-game-message">
+                Gewonnen!
+            </div>
+            <div id="end-of-game-freqs">
+                <div class="freq-name">1 ronde</div><div id="freq-bar-1" class="freq-bar"></div><div id="freq-label-1" class="freq-label"></div>
+                <div class="freq-name">2 rondes</div><div id="freq-bar-2" class="freq-bar"></div><div id="freq-label-2" class="freq-label"></div>
+                <div class="freq-name">3 rondes</div><div id="freq-bar-3" class="freq-bar"></div><div id="freq-label-3" class="freq-label"></div>
+                <div class="freq-name">4 rondes</div><div id="freq-bar-4" class="freq-bar"></div><div id="freq-label-4" class="freq-label"></div>
+                <div class="freq-name">5 rondes</div><div id="freq-bar-5" class="freq-bar"></div><div id="freq-label-5" class="freq-label"></div>
+                <div class="freq-name">6 rondes</div><div id="freq-bar-6" class="freq-bar"></div><div id="freq-label-6" class="freq-label"></div>
+                <div class="freq-name">verlies</div><div id="freq-bar-loss" class="freq-bar freq-bar-loss"></div><div id="freq-label-loss" class="freq-label"></div>
+            </div>
+            <button id="end-of-game-restart" onclick="showEndOfGame(false); startNewGame();">
+                <svg id="end-of-game-restart-icon" viewBox="-180 -180 360 360">
+                    <path d="M -80 -60 A 100 100 0 1 1 -100 0 M -40 -60 L -80 -60 L -80 -100" fill="none" stroke="white" stroke-width="15" stroke-linecap="round"/>
+                </svg>&nbsp;
+                <span>Nieuw spel</span>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
