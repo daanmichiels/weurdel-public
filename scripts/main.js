@@ -605,9 +605,6 @@ function determineEndOfGameMessage() {
             else if ((typeof handpickedEvent !== 'undefined') && handpickedEventTarget === 'sauna') {
                 result = "Gewonnen!<br>Dit is een bon voor<br>een uitstap naar een spa samen met mij.";
             }
-            else if ((typeof handpickedEvent !== 'undefined') && handpickedEventTarget === 'ballet') {
-                result = "Gewonnen!<br>Dit is een bon voor<br>een balletvoorstelling voor twee<br>(ballet.org.uk)";
-            }
             else {
                 result = "Gewonnen!";
             }
